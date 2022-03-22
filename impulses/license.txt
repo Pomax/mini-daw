@@ -20,4 +20,4 @@ IN NO EVENT SHALL THE DISTRIBUTOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, O
 
 ---
 
-Addendum specific to this github.com/Pomax/metronome repository: only the original .wav files are covered by this license, the .ogg files may not be copied and distributed and only exist as "smaller form factor" equivalents.
+Addendum specific to this github.com/Pomax/mini-daw repository: only the original .wav files are covered by this license, the .ogg files may not be copied and distributed as they only exist as "smaller form factor" equivalents of the .wav files (for a better web experience)
