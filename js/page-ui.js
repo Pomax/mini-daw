@@ -145,7 +145,7 @@ function setupRecorder() {
 
   for (let i = 128; i > 0; i--) {
     const row = create(`tr`);
-    row.classList.add(`note`, `n${i}`);
+    row.classList.add(`n${i}`);
     parent.appendChild(row);
   }
 
