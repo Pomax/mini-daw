@@ -41,6 +41,10 @@
   box-shadow: -1px 1px 0 0 inset black;
 }
 
+.pianoroll tr th.key.highlight {
+  background: lime;
+}
+
 .pianoroll tr .m {
   width: 10em;
   line-height: 0;

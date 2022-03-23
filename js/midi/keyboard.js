@@ -56,6 +56,9 @@ class Key {
     this.e.classList.add(`pressed`);
     this.beep.start(velocity / 127);
     recorder.noteon(this.note, velocity);
+    document.dispatchEvent(
+      new CustomEvent(`midi:note:play`, { detail: { note: this.note } })
+    );
   }
 
   onNoteOff(note) {
@@ -69,6 +72,9 @@ class Key {
     this.e.classList.remove(`pressed`);
     this.beep.stop();
     recorder.noteoff(this.note);
+    document.dispatchEvent(
+      new CustomEvent(`midi:note:stop`, { detail: { note: this.note } })
+    );
   }
 
   onPitch(data) {

@@ -73,7 +73,9 @@ export async function updatePageUI(tickData, flips, midi24) {
       .forEach((e) => e.classList.add(`active`));
   }
 
-  if (flips[0]) addMeasure();
+  const mCount = document.querySelectorAll(`.pianoroll tr:first-child th ~ .m`).length;
+  const threshold = mCount - startingMeasureCount;
+  if (flips[0] && tickData[0] > threshold) addMeasure();
 }
 
 let prevMidi24 = -1;
@@ -95,10 +97,9 @@ export async function updateScrubber(tickData, midi24) {
     const qs = [
       `.pianoroll`,
       `tr:first-child`,
-      `.m:nth-child(${tickData[0] + 1})`,
+      `th ~ .m:nth-child(${tickData[0] + 2})`, // that th throws everything off =()
       `.q:nth-child(${tickData[1] + 1})`,
     ].join(` `);
-    console.log(qs);
     const newPos = document.querySelector(qs);
     newPos.appendChild(scrubber);
     scrubber.style.setProperty(`--l`, `${(100 * midi24) / 24}%`);
@@ -150,17 +151,27 @@ function setupRecorder() {
     const color = getColor(i);
     row.classList.add(`n${i}`, color);
     const key = create(`th`);
-    key.classList.add(`key`, `midi${i}`)
+    key.classList.add(`key`, `midi${i}`);
     row.appendChild(key);
     parent.appendChild(row);
   }
+
+  document.addEventListener(`midi:note:play`, ({ detail }) => {
+    const key = document.querySelector(`tr.n${detail.note} th`);
+    key.classList.add(`highlight`);
+  });
+
+  document.addEventListener(`midi:note:stop`, ({ detail }) => {
+    const key = document.querySelector(`tr.n${detail.note} th`);
+    key.classList.remove(`highlight`);
+  });
 
   recorder.addListener({
     noteStarted: ({ note, velocity, start, e }) => {
       const f = start.length - 1;
       const [m, q, ..._] = start;
       const quarter = document.querySelector(
-        `.pianoroll tr.n${note} .m:nth-child(${m + 1}) .q:nth-child(${q + 1})`
+        `.pianoroll tr.n${note} .m:nth-child(${m + 2}) .q:nth-child(${q + 1})`
       );
       quarter.appendChild(e);
       e.style.left = `${(100 * start[f]) / f}%`;
@@ -180,10 +191,15 @@ function setupRecorder() {
   });
 }
 
+let startingMeasureCount = 0;
+
 export function bootstrapPianoRoll() {
   const p = document.querySelector(`.pianoroll-container`);
   const t = document.querySelector(`.pianoroll`);
-  while (t.clientWidth < p.clientWidth) addMeasure();
+  while (t.clientWidth < p.clientWidth) {
+    addMeasure();
+    startingMeasureCount++;
+  }
 }
 
 /**
