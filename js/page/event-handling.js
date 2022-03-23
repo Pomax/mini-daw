@@ -1,4 +1,5 @@
 import { settings } from "../settings.js";
+import { beeps } from "../audio/audio-generator.js";
 import { router } from "../midi/router.js";
 import { recorder } from "../midi/recorder.js";
 import { connectMIDI } from "../midi/midi.js";

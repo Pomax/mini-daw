@@ -65,4 +65,4 @@ const play = (note, velocity = 24) => {
   beeps.get(note).play(settings.beepDuration, velocity);
 };
 
-export { AudioGenerator, play };
+export { AudioGenerator, beeps, play };
