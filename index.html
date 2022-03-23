@@ -39,8 +39,6 @@
       <div>EQ: <span class="eq">(...pending...)</span></div>
 
       <div>
-        <button class="play">play</button>
-        <button class="stop">stop</button>
         bpm:
         <input id="bpm" type="number" min="30" max="300" step="1" value="125" />
         divisions:
@@ -52,7 +50,19 @@
           step="1"
           value="8"
         />
-        <button class="playback">playback</button>
+        time signature:
+        <input
+          class="time quarters"
+          type="number"
+          min="1"
+          max="16"
+          value="4"
+        /><strong>:</strong
+        ><input class="time over" type="number" min="3" max="16" value="4" />
+        -
+        <button class="playback">play</button>
+        <button class="stop">stop</button>
+        <button class="play">record</button>
       </div>
 
       <svg id="metronome" viewBox="0 0 500 500" id="circles"></svg>

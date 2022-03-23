@@ -1,4 +1,4 @@
-const create = (tag) => document.createElement(tag);
+import { create } from "./utils.js";
 
 function slider(options, container = undefined) {
   options.value ??= 0;

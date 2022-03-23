@@ -1,6 +1,6 @@
+import { AudioGenerator } from "../audio/audio-generator.js";
+import { getFrequency } from "../audio/get-frequency.js";
 import { router } from "./router.js";
-import { AudioGenerator } from "./audio-generator.js";
-import { getFrequency } from "./get-frequency.js";
 import { recorder } from "./recorder.js";
 
 const MIDI_KEYS = [...Array(128)].map((_, i) => i); // MIDI "only" has 128 real keys
@@ -8,11 +8,15 @@ const pitchDistance = 2; // in semi-tones
 const lfoFrequency = 4; // in Hz
 const beeps = new AudioGenerator(lfoFrequency);
 
+export function getColor(note) {
+  return [1, 3, 6, 8, 10].indexOf(note % 12) > -1 ? `black` : `white`;
+}
+
 function domNode(note) {
   let e = document.createElement(`button`);
   // let label = note % 12 === 0 ? note / 12 : ``;
   // e.textContent = label;
-  let color = [1, 3, 6, 8, 10].indexOf(note % 12) > -1 ? `black` : `white`;
+  let color = getColor(note);
   e.classList.add(color, `key`, `key${note % 12}`, `midi${note}`);
   return e;
 }

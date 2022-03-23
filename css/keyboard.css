@@ -31,7 +31,7 @@
   transform: translate(0, -2.35em);
 }
 
-.key {
+.keyboard .key {
   display: inline-block;
   width: 0.7em;
   border: 1px solid gray;
@@ -40,32 +40,32 @@
   vertical-align: top;
 }
 
-.key + .key {
+.keyboard .key + .key {
   border-left: 0px;
 }
 
-.key.white {
+.keyboard .key.white {
   background: white;
   height: 4em;
 }
 
-.key.black {
+.keyboard .key.black {
   background: black;
   height: 2.75em;
 }
 
-.key1 {
+.keyboard .key1 {
   margin-left: calc(1px + 0.25em);
 }
 
-.key3 {
+.keyboard .key3 {
   margin-right: calc(1px + 0.75em);
 }
 
-.key10 {
+.keyboard .key10 {
   margin-right: 0.25em;
 }
 
-.key.pressed {
+.keyboard .key.pressed {
   background: lime;
 }

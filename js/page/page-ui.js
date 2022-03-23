@@ -1,9 +1,9 @@
-import { context, EQcontrols } from "./audio-context.js";
-import { IMPULSES } from "../impulses/impulses.js";
-import { Keyboard } from "./keyboard.js";
+import { settings } from "../settings.js";
+import { context, EQcontrols } from "../audio/audio-context.js";
+import { IMPULSES } from "../../impulses/impulses.js";
+import { Keyboard, getColor } from "../midi/keyboard.js";
+import { recorder } from "../midi/recorder.js";
 import { create } from "./utils.js";
-import { recorder } from "./recorder.js";
-import { settings } from "./settings.js";
 
 // We want to make this user-controllable, of course
 let timeSignature = settings.timeSignature;
@@ -98,6 +98,7 @@ export async function updateScrubber(tickData, midi24) {
       `.m:nth-child(${tickData[0] + 1})`,
       `.q:nth-child(${tickData[1] + 1})`,
     ].join(` `);
+    console.log(qs);
     const newPos = document.querySelector(qs);
     newPos.appendChild(scrubber);
     scrubber.style.setProperty(`--l`, `${(100 * midi24) / 24}%`);
@@ -143,9 +144,14 @@ function buildEQcontrols() {
 function setupRecorder() {
   const parent = document.querySelector(`.pianoroll`);
 
+  // pianoroll rows
   for (let i = 128; i > 0; i--) {
     const row = create(`tr`);
-    row.classList.add(`n${i}`);
+    const color = getColor(i);
+    row.classList.add(`n${i}`, color);
+    const key = create(`th`);
+    key.classList.add(`key`, `midi${i}`)
+    row.appendChild(key);
     parent.appendChild(row);
   }
 

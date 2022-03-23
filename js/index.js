@@ -1,20 +1,19 @@
-import { play } from "./audio-generator.js";
-import { buildCountingWheel } from "./metronome.js";
-import { recorder } from "./recorder.js";
-import { getDifference } from "./utils.js";
-import { listenForUser } from "./event-handling.js";
 import { settings } from "./settings.js";
-
+import { buildCountingWheel } from "./page/metronome.js";
+import { getDifference } from "./page/utils.js";
+import { listenForUser } from "./page/event-handling.js";
 import {
   bootstrapPianoRoll,
   listenForInitialPageInteraction,
   updatePageUI,
   updateScrubber,
   setupUI,
-} from "./page-ui.js";
+} from "./page/page-ui.js";
+import { play } from "./audio/audio-generator.js";
+import { recorder } from "./midi/recorder.js";
 
 let prevTickData;
-const counter = new Worker("js/bmp-counter.js");
+const counter = new Worker("js/counter/bmp-counter.js");
 counter.onmessage = async (e) => {
   const { tickData, midi24, intervals, ticks, bad } = e.data;
 

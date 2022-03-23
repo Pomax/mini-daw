@@ -17,6 +17,7 @@
 }
 
 .pianoroll tr {
+  --key-offset: 2em;
   height: 0.5em;
 }
 
@@ -24,9 +25,29 @@
   background: #1111;
 }
 
+.pianoroll tr th {
+  position: sticky;
+  z-index: 1;
+  left: 0;
+  width: var(--key-offset);
+}
+
+.pianoroll tr.black th {
+  background: black;
+}
+
+.pianoroll tr.white th {
+  background: white;
+  box-shadow: -1px 1px 0 0 inset black;
+}
+
 .pianoroll tr .m {
   width: 10em;
   line-height: 0;
+}
+
+.pianoroll tr .m:first-child {
+  margin-left: var(--key-offset);
 }
 
 .pianoroll tr .m:nth-child(2n) {

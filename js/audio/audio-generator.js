@@ -1,7 +1,7 @@
+import { settings } from "../settings.js";
+import { router } from "./../midi/router.js";
 import { AudioSource } from "./audio-source.js";
 import { context } from "./audio-context.js";
-import { router } from "./router.js";
-import { settings } from "./settings.js";
 
 const sources = {};
 

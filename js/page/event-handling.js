@@ -1,9 +1,9 @@
-import { router } from "./router.js";
-import { master, setReverb } from "./audio-context.js";
-import { connectMIDI } from "./midi.js";
+import { settings } from "../settings.js";
+import { router } from "../midi/router.js";
+import { recorder } from "../midi/recorder.js";
+import { connectMIDI } from "../midi/midi.js";
+import { master, setReverb } from "../audio/audio-context.js";
 import { slider } from "./slider.js";
-import { recorder } from "./recorder.js";
-import { settings } from "./settings.js";
 
 let startTime;
 

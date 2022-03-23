@@ -28,7 +28,8 @@ input[type="range"] {
 }
 
 #bpm,
-#divisions {
+#divisions,
+.time {
   width: 4em;
 }
 
