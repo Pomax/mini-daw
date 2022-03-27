@@ -9,8 +9,9 @@ import {
   updateScrubber,
   setupUI,
 } from "./page/page-ui.js";
-import { play } from "./audio/audio-generator.js";
 import { recorder } from "./midi/recorder.js";
+
+//  import { play } from "./audio/audio-generator.js";
 
 let prevTickData;
 const counter = new Worker("js/counter/bmp-counter.js");

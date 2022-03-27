@@ -1,3 +1,8 @@
+Fix oscillator count:
+- [ ] don't preallocate all MIDI key oscillators
+- [ ] create them on the fly, and reuse them with `osc.frequency.value.setValueAtTime`
+- [ ] legato vs. polyphonic using `setTargetAtTime`
+
 Make time signature user-manipulable
 
 - [x] add to settings

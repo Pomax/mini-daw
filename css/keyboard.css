@@ -54,15 +54,15 @@
   height: 2.75em;
 }
 
-.keyboard .key1 {
+.keyboard .key[data-key="1"] {
   margin-left: calc(1px + 0.25em);
 }
 
-.keyboard .key3 {
+.keyboard .key[data-key="3"] {
   margin-right: calc(1px + 0.75em);
 }
 
-.keyboard .key10 {
+.keyboard .key[data-key="10"] {
   margin-right: 0.25em;
 }
 

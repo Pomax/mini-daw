@@ -1,34 +1,42 @@
-import { settings } from "../settings.js";
 import { router } from "./../midi/router.js";
 import { AudioSource } from "./audio-source.js";
-import { context } from "./audio-context.js";
-
-const sources = {};
+import { context, master } from "./audio-context.js";
 
 class AudioGenerator {
-  constructor(lfoFrequency, lfoStrength = 0) {
-    if (lfoFrequency) {
-      this.lfoFrequency = lfoFrequency;
-      this.lfoStrength = lfoStrength;
-      this.setupLFO();
+  constructor(polyphony = 12, lfoFrequency = 3, lfoStrength = 0) {
+    this.polyphony = polyphony;
+
+    let output = (this.output = context.createGain());
+    output.gain.value = 1.0;
+    output.connect(master);
+
+    this.active = [];
+    this.sources = [];
+    for (let i = 0; i < polyphony; i++) {
+      this.sources.push(new AudioSource(this, output));
     }
+
+    this.setupLFO(lfoFrequency, lfoStrength);
   }
 
-  setupLFO() {
+  setupLFO(frequency, amplitude) {
     // set up the low frequency oscillator
-    let LFO = context.createOscillator();
+    const LFO = context.createOscillator();
     LFO.type = "sine";
-    LFO.frequency.value = this.lfoFrequency;
+    LFO.frequency.value = frequency;
     this.lfo = LFO;
 
-    // and hook it up to its own gain
-    var LFOGain = context.createGain();
-    LFOGain.gain.value = this.lfoStrength;
+    // set a gain on this LFO
+    const LFOGain = context.createGain();
+    LFOGain.gain.value = amplitude;
     this.lfoGain = LFOGain;
 
     // hook it up and start the LFO
     LFO.connect(LFOGain);
     LFO.start();
+
+    // hook up this LFO to all our oscillators
+    this.sources.forEach((oscillator) => oscillator.setLFO(LFOGain));
 
     // and listen for the MIDI "mod wheel" event
     router.addListener(this, `modwheel`);
@@ -38,31 +46,41 @@ class AudioGenerator {
     this.setLFOStrength(value / 127);
   }
 
-  setLFOFrequency(v) {
-    this.lfoFrequency = v;
-    this.lfo.frequency.setValueAtTime(v, context.currentTime + 0.01);
+  setLFOFrequency(frequency) {
+    this.lfo.frequency.setTargetAtTime(frequency, context.currentTime, 0.02);
   }
 
-  setLFOStrength(v) {
-    this.lfoStrength = v;
-    this.lfoGain.gain.setValueAtTime(v, context.currentTime + 0.01);
+  setLFOStrength(amplitude) {
+    this.lfoGain.gain.setTargetAtTime(amplitude, context.currentTime, 0.02);
   }
 
-  get(note, type = `sawtooth`) {
-    const id = `${note}${type}`;
-    if (!sources[id]) sources[id] = new AudioSource(note, type, this.lfoGain);
-    return sources[id];
+  getOscillator(frequency) {
+    // Get the first oscillator in the list, update it,
+    // and then put it at the back of the list.
+    let source = this.sources.shift();
+    if (source.sustained) source.stop();
+    this.sources.push(source);
+    source.setFrequency(frequency);
+    return source;
   }
 
-  toggleOsc2() {
-    console.log(`toggle...`);
-    Object.entries(sources).forEach(([id, source]) => source.toggleOsc2());
+  markActive(source) {
+    this.active.push(source);
+    console.log(`mark active (${this.active.length}):`, source);
+    this.updatePolyphonyVolume();
+  }
+
+  markSuspended(source) {
+    const pos = this.active.findIndex((v) => v === source);
+    this.active.splice(pos, 1);
+    this.updatePolyphonyVolume();
+  }
+
+  updatePolyphonyVolume() {
+    const mix = 1 / (this.active.length || 1)**0.5;
+    console.log(this.active.length, mix);
+    this.output.gain.setValueAtTime(mix, context.currentTime);
   }
 }
 
-const beeps = new AudioGenerator();
-const play = (note, velocity = 24) => {
-  beeps.get(note).play(settings.beepDuration, velocity);
-};
-
-export { AudioGenerator, beeps, play };
+export { AudioGenerator };

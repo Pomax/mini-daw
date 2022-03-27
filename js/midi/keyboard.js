@@ -3,33 +3,26 @@ import { getFrequency } from "../audio/get-frequency.js";
 import { router } from "./router.js";
 import { recorder } from "./recorder.js";
 
-const MIDI_KEYS = [...Array(128)].map((_, i) => i); // MIDI "only" has 128 real keys
+const voices = 12;
 const pitchDistance = 2; // in semi-tones
 const lfoFrequency = 4; // in Hz
-const beeps = new AudioGenerator(lfoFrequency);
+const generator = new AudioGenerator(voices, lfoFrequency);
 
 export function getColor(note) {
   return [1, 3, 6, 8, 10].indexOf(note % 12) > -1 ? `black` : `white`;
-}
-
-function domNode(note) {
-  let e = document.createElement(`button`);
-  // let label = note % 12 === 0 ? note / 12 : ``;
-  // e.textContent = label;
-  let color = getColor(note);
-  e.classList.add(color, `key`, `key${note % 12}`, `midi${note}`);
-  return e;
 }
 
 /**
  * individual key class
  */
 class Key {
+  oscillator;
+  pressed = false;
+
   constructor(note) {
-    this.pressed = false;
     this.note = note;
-    this.e = domNode(note);
-    this.beep = beeps.get(note);
+    this.frequency = getFrequency(note);
+    this.e = this.createDOMnode(note);
 
     // note data
     router.addListener(this, `noteon`);
@@ -39,6 +32,22 @@ class Key {
     this.lower = getFrequency(note - pitchDistance);
     this.higher = getFrequency(note + pitchDistance);
     router.addListener(this, `pitch`);
+  }
+
+  createDOMnode(note) {
+    let e = document.createElement(`button`);
+    e.dataset.key = note % 12;
+    e.dataset.note = note;
+    e.classList.add(getColor(note), `key`);
+    const inputPress = (evt) =>
+      this.pressed ? undefined : evt.buttons ? this.start(64) : undefined;
+    const inputRelease = (evt) => (this.pressed ? this.stop() : undefined);
+    e.addEventListener(`mousedown`, inputPress);
+    e.addEventListener(`mouseover`, inputPress);
+    e.addEventListener(`touchstart`, inputPress);
+    document.addEventListener(`mouseup`, inputRelease);
+    document.addEventListener(`touchend`, inputRelease);
+    return e;
   }
 
   getDOMnode() {
@@ -51,10 +60,13 @@ class Key {
     }
   }
 
-  play(velocity) {
+  start(velocity) {
+    if (this.oscillator) return;
+
     this.pressed = true;
     this.e.classList.add(`pressed`);
-    this.beep.start(velocity / 127);
+    this.oscillator = generator.getOscillator(this.frequency);
+    this.oscillator.start(velocity / 127);
     recorder.noteon(this.note, velocity);
     document.dispatchEvent(
       new CustomEvent(`midi:note:play`, { detail: { note: this.note } })
@@ -68,9 +80,11 @@ class Key {
   }
 
   stop() {
+    if (!this.oscillator) return;
+
     this.pressed = false;
     this.e.classList.remove(`pressed`);
-    this.beep.stop();
+    this.oscillator = this.oscillator.stop();
     recorder.noteoff(this.note);
     document.dispatchEvent(
       new CustomEvent(`midi:note:stop`, { detail: { note: this.note } })
@@ -80,9 +94,9 @@ class Key {
   onPitch(data) {
     const ratio = data / 8192;
     if (ratio < 0) {
-      return this.beep.tuneTowards(this.lower, -ratio);
+      return this.oscillator?.tuneTowards(this.lower, -ratio);
     }
-    this.beep.tuneTowards(this.higher, ratio);
+    this.oscillator?.tuneTowards(this.higher, ratio);
   }
 }
 
@@ -91,32 +105,55 @@ class Key {
  */
 class Keyboard {
   constructor(makeActive = false) {
+    const MIDI_KEYS = [...Array(128)].map((_, i) => i);
     this.keys = MIDI_KEYS.map((note) => new Key(note));
     this.keyNodes = this.keys.map((key) => key.getDOMnode());
+    this.setupComputerKeyboard();
     if (makeActive || !Keyboard.active) Keyboard.active = this;
+  }
 
+  setupComputerKeyboard() {
+    // computer keyboard mappings for "playing the keyboard"
     this.keyMapping = {};
     const getCodes = (keys, start) =>
       Object.fromEntries(keys.split(``).map((c, i) => [c, i + start]));
-    Object.assign(this.keyMapping, getCodes(`zsxdcvgbhnjm`, 48));
+
+    // upper octave and a half
     Object.assign(this.keyMapping, getCodes(`q2w3er5t6y7ui9o0p[=]`, 60));
 
-    this.handleDown = (evt) => {
+    // lower octave
+    Object.assign(this.keyMapping, getCodes(`zsxdcvgbhnjm`, 48));
+
+    // key event handling
+    this.preprocessDown = (evt) => {
       if (evt.repeat) return;
+
+      // are there any modifier keys active?
       const { shift, altKey, ctrlKey, metaKey } = evt;
       const modified = shift || altKey || ctrlKey || metaKey;
+
       this.handleKeyDown(
         evt.key,
         modified ? { shift, altKey, ctrlKey, metaKey } : undefined
       );
     };
-    document.addEventListener(`keydown`, this.handleDown);
-    this.handleUp = (evt) => this.handleKeyUp(evt.key, evt.shift);
-    document.addEventListener(`keyup`, this.handleUp);
+
+    document.addEventListener(`keydown`, this.preprocessDown);
+
+    this.preprocessUp = (evt) => {
+      const { shift, altKey, ctrlKey, metaKey } = evt;
+      const modified = shift || altKey || ctrlKey || metaKey;
+      this.handleKeyUp(
+        evt.key,
+        modified ? { shift, altKey, ctrlKey, metaKey } : undefined
+      );
+    };
+
+    document.addEventListener(`keyup`, this.preprocessUp);
   }
 
   getKeyNodes() {
-    return this.keys;
+    return this.keyNodes;
   }
 
   handleKeyDown(key, modifiers) {
@@ -129,7 +166,8 @@ class Keyboard {
   }
 
   start(code, velocity) {
-    this.keys[code].play(velocity);
+    if (code < 0 || code > 127) return;
+    this.keys[code].start(velocity);
   }
 
   handleKeyUp(key, modifiers) {
@@ -140,6 +178,7 @@ class Keyboard {
   }
 
   stop(code) {
+    if (code < 0 || code > 127) return;
     this.keys[code].stop();
   }
 

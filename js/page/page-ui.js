@@ -73,7 +73,9 @@ export async function updatePageUI(tickData, flips, midi24) {
       .forEach((e) => e.classList.add(`active`));
   }
 
-  const mCount = document.querySelectorAll(`.pianoroll tr:first-child th ~ .m`).length;
+  const mCount = document.querySelectorAll(
+    `.pianoroll tr:first-child th ~ .m`
+  ).length;
   const threshold = mCount - startingMeasureCount;
   if (flips[0] && tickData[0] > threshold) addMeasure();
 }
@@ -175,8 +177,6 @@ function setupRecorder() {
       );
       quarter.appendChild(e);
       e.style.left = `${(100 * start[f]) / f}%`;
-      // e.addEventListener(`mousedown`, () => beeps.get(note).start(velocity));
-      // document.addEventListener(`mouseup`, () => beeps.get(note).stop());
     },
 
     noteStopped: ({ note, start, stop, e }) => {

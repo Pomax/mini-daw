@@ -1,5 +1,4 @@
 import { settings } from "../settings.js";
-import { beeps } from "../audio/audio-generator.js";
 import { router } from "../midi/router.js";
 import { recorder } from "../midi/recorder.js";
 import { connectMIDI } from "../midi/midi.js";
@@ -131,7 +130,7 @@ export function listenForUser(counter) {
     const btn = evt.target;
     btn.classList.toggle(`enabled`);
     btn.textContent = btn.classList.contains(`enabled`) ? `disable` : `enable`;
-    beeps.toggleOsc2();
+    // FIXME: we removed detune chorus
   });
 
   const masterVolume = document.querySelector(`span.master`);
