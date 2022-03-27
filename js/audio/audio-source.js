@@ -61,7 +61,7 @@ class AudioSource {
     this.owner.markSuspended(this);
   }
 
-  play(durationInSeconds, velocity) {
+  play(durationInSeconds, velocity = 64) {
     if (this.sustained) return;
     if (velocity > 1) {
       velocity /= 128;

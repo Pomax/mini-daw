@@ -10,8 +10,15 @@ import {
   setupUI,
 } from "./page/page-ui.js";
 import { recorder } from "./midi/recorder.js";
+import { AudioGenerator } from "./audio/audio-generator.js";
+import { getFrequency } from "./audio/get-frequency.js";
 
-//  import { play } from "./audio/audio-generator.js";
+const beep = new AudioGenerator();
+const play = note => {
+  const Hz = getFrequency(note);
+  const osc = beep.getOscillator(Hz);
+  osc.play(settings.beepDuration);
+};
 
 let prevTickData;
 const counter = new Worker("js/counter/bmp-counter.js");
