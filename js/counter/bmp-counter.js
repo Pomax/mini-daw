@@ -51,17 +51,19 @@
  *  Stop the counter.
  */
 
-const MORE = { more: true };
-const more = () => loopWorker.postMessage(MORE);
+if (false) {
+  const MORE = { more: true };
+  const more = () => loopWorker.postMessage(MORE);
+  const loopWorker = new Worker("./loop.js");
+  loopWorker.onmessage = () => {
+    // we exploit postMessage round-tripping to effect an
+    // incredibly unpredictable, but high resolution timer.
+    tryIncrement();
+    setTimeout(more, 1);
+  };
+}
 
-const loopWorker = new Worker("./loop.js");
-
-loopWorker.onmessage = () => {
-  // we exploit postMessage round-tripping to effect an
-  // incredibly unpredictable, but high resolution timer.
-  tryIncrement();
-  setTimeout(more, 1);
-};
+setInterval(tryIncrement, 5);
 
 function tryIncrement() {
   const now = performance.now();
