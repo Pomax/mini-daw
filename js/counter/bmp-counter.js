@@ -63,7 +63,7 @@ if (false) {
   };
 }
 
-setInterval(tryIncrement, 5);
+let intervalTimer;
 
 function tryIncrement() {
   const now = performance.now();
@@ -145,10 +145,14 @@ function startCounter() {
   lastFrame = startTime;
   tickData = intervals.map((v) => 0);
   prevTickData = intervals.map(() => -1);
-  loopWorker.postMessage({ start: true });
+
+  // loopWorker.postMessage({ start: true });
+  intervalTimer = setInterval(tryIncrement, 5);
 }
 
 function stopCounter() {
-  loopWorker.postMessage({ stop: true });
+  //loopWorker.postMessage({ stop: true });
+  clearInterval(intervalTimer);
+
   postMessage({ ticks: ticks, bad });
 }
