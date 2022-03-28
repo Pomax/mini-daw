@@ -70,7 +70,7 @@ function tryIncrement() {
   const runtime = now - startTime;
   const diff = now - last;
 
-  if (diff >= 1) {
+  if (diff >= 3) {
     last = now;
     ticks = ticks + 1;
     timerIntervals.push(diff);
