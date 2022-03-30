@@ -51,108 +51,33 @@
  *  Stop the counter.
  */
 
-if (false) {
-  const MORE = { more: true };
-  const more = () => loopWorker.postMessage(MORE);
-  const loopWorker = new Worker("./loop.js");
-  loopWorker.onmessage = () => {
-    // we exploit postMessage round-tripping to effect an
-    // incredibly unpredictable, but high resolution timer.
-    tryIncrement();
-    setTimeout(more, 1);
-  };
-}
+import { markStart, setBPM, tick } from "./count.js";
 
-let intervalTimer;
+let intervalTimer,
+  lastTickData = [...Array(32)].map(() => -1);
 
 function tryIncrement() {
   const now = performance.now();
-  const runtime = now - startTime;
-  const diff = now - last;
+  const tickData = tick(now);
 
-  if (diff >= 3) {
-    last = now;
-    ticks = ticks + 1;
-    timerIntervals.push(diff);
-
-    if (diff > smallest) {
-      bad = bad + 1;
-    }
-
-    const m = (runtime / intervals[0]) | 0;
-    const mi = runtime - m * intervals[0];
-
-    const q = (mi / intervals[1]) | 0;
-    const qi = mi - q * intervals[1];
-
-    tickData = intervals.map((v) => (qi / v) | 0);
-    tickData[0] = m;
-    tickData[1] = q;
-
-    const midi24 = (qi / midi24Interval) | 0;
-
-    // always send at a steady 10-ms pace, even if that's
-    // somewhere in between divisions ticking over.
-    if (now - lastFrame > 16) {
-      lastFrame = now;
-      postMessage({ tickData, midi24 });
-      prevTickData = tickData;
-      return;
-    }
-
-    // Notify our parent of a new tick if anything
-    // changed, checking back-to-front because the
-    // smallest divisions change radically more often
-    // than the measure or quarter.
-    for (let i = tickData.length - 1; i >= 0; i--) {
-      if (tickData[i] !== prevTickData[i]) {
-        postMessage({ tickData, midi24 });
-        prevTickData = tickData;
-      }
-    }
+  if (tickData[1] !== lastTickData[1]) {
+    lastTickData = tickData.slice();
+    postMessage({ tickData, timestamp: Date.now() });
   }
 }
-
-const timerIntervals = [];
-let startTime, BPM, intervals, midi24Interval, smallest, tickData, prevTickData;
-let ticks = 0,
-  last = 0,
-  now,
-  bad = 0,
-  lastFrame = -1;
 
 onmessage = async (e) => {
   const { start, stop, bpm, divisions } = e.data;
-  if (bpm) setBPM(bpm, divisions);
-  if (start) startCounter();
-  if (stop) stopCounter();
-};
 
-function setBPM(bpm = 125, MAX_DIVISION = 8) {
-  BPM = bpm;
-  intervals = [240000 / BPM, 60000 / BPM];
-  for (let i = 0; i <= MAX_DIVISION - 2; i++) {
-    intervals.push(60000 / (BPM * (i + 2)));
+  if (bpm) {
+    const { intervals } = setBPM(bpm, divisions);
+    postMessage({ intervals });
   }
-  smallest = intervals[intervals.length - 1];
-  midi24Interval = intervals[1] / 24;
-  postMessage({ intervals, midi24Interval });
-}
 
-function startCounter() {
-  ticks = 0;
-  startTime = last = performance.now();
-  lastFrame = startTime;
-  tickData = intervals.map((v) => 0);
-  prevTickData = intervals.map(() => -1);
+  if (start) {
+    markStart();
+    intervalTimer = setInterval(tryIncrement, 5);
+  }
 
-  // loopWorker.postMessage({ start: true });
-  intervalTimer = setInterval(tryIncrement, 5);
-}
-
-function stopCounter() {
-  //loopWorker.postMessage({ stop: true });
-  clearInterval(intervalTimer);
-
-  postMessage({ ticks: ticks, bad });
-}
+  if (stop) clearInterval(intervalTimer);
+};

@@ -42,11 +42,11 @@ class Recorder {
     this.listeners.splice(pos, 1);
   }
 
-  tick(tickData, flips) {
+  tick(tickData, timestamp) {
     this.tickData = tickData.slice();
     if (!this.playing) return;
 
-    // FIXME: testing for now
+    // FIXME: testing for now?
     const events = this.getEvents();
     events.forEach((e) => {
       Keyboard.active.start(e.note, e.velocity);
@@ -81,6 +81,9 @@ class Recorder {
   }
 
   noteon(note, velocity) {
+    // FIXME: CONTINUE HERE: we need to record noteon in terms of m/q/d2/d3/... but we only have m/q + timestamp, so we need to compute the d2/d3/etc here, then use that as start
+    const noteonTime = Date.now();
+
     if (!this.recording) return;
 
     const e = document.createElement(`button`);
@@ -102,8 +105,12 @@ class Recorder {
   }
 
   noteoff(note) {
+    // FIXME: CONTINUE HERE: we need to record noteon in terms of m/q/d2/d3/... but we only have m/q + timestamp, so we need to compute the d2/d3/etc here, then use that as start
+    const noteoffTime = Date.now();
+
     const packet = this.current[note];
     if (!packet) return;
+
     packet.stop = this.tickData;
     packet.e.setAttribute(`data-stop`, this.tickData.join(`,`));
     if (this.recording) this.listeners.forEach((l) => l.noteStopped(packet));

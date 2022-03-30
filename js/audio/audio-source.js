@@ -44,10 +44,14 @@ class AudioSource {
     this.__enable(velocity, attack);
   }
 
-  __enable(velocity = 0.8, attack = 0.01) {
+  __enable(velocity = 0.8, attack = 0.01, secondsInTheFuture = 0) {
     // only add ourselves as new source if we weren't already active
     if (this.volume.gain.value === 0) this.owner.markActive(this);
-    this.volume.gain.setTargetAtTime(velocity, context.currentTime, attack);
+    this.volume.gain.setTargetAtTime(
+      velocity,
+      context.currentTime + secondsInTheFuture,
+      attack
+    );
   }
 
   stop(decay) {
@@ -61,13 +65,16 @@ class AudioSource {
     this.owner.markSuspended(this);
   }
 
-  play(durationInSeconds, velocity = 64) {
+  play(durationInSeconds, velocity = 64, secondsInTheFuture = 0) {
     if (this.sustained) return;
     if (velocity > 1) {
       velocity /= 128;
     }
-    this.__enable(velocity);
-    this.timeout = setTimeout(() => this.__disable(), 1000 * durationInSeconds);
+    this.__enable(velocity, 0.01, secondsInTheFuture);
+    this.timeout = setTimeout(
+      () => this.__disable(),
+      1000 * (durationInSeconds + secondsInTheFuture)
+    );
   }
 
   // TODO: some ADSR control would be nice

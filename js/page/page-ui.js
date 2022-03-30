@@ -47,7 +47,7 @@ function buildImpulseSelector() {
  * @param {*} tickData
  * @param {*} flips
  */
-export async function updatePageUI(tickData, flips, midi24) {
+export async function updatePageUI(tickData, flips) {
   const q = tickData[1];
 
   document
@@ -85,27 +85,26 @@ let prevMidi24 = -1;
 /**
  *
  * @param {*} tickData
- * @param {*} midi24
  */
-export async function updateScrubber(tickData, midi24) {
-  if (prevMidi24 !== midi24) {
-    // Update the scrubber position, but only if the current midi24 value
-    // (that is, the smallest division of a quarter note that MIDI devices
-    // count off when running a MIDI clock) is different from the one we
-    // saw on the previous tick. As typical q/24 values are in the tens of
-    // milliseconds range, we don't want to run code that won't do anything
-    // 90% or even 95% of the time.
-    const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
-    const qs = [
-      `.pianoroll`,
-      `tr:first-child`,
-      `th ~ .m:nth-child(${tickData[0] + 2})`, // that th throws everything off =()
-      `.q:nth-child(${tickData[1] + 1})`,
-    ].join(` `);
-    const newPos = document.querySelector(qs);
-    newPos.appendChild(scrubber);
-    scrubber.style.setProperty(`--l`, `${(100 * midi24) / 24}%`);
-    prevMidi24 = midi24;
+export async function updateScrubber(tickData, interval) {
+  // Update the scrubber position, but only if the current midi24 value
+  // (that is, the smallest division of a quarter note that MIDI devices
+  // count off when running a MIDI clock) is different from the one we
+  // saw on the previous tick. As typical q/24 values are in the tens of
+  // milliseconds range, we don't want to run code that won't do anything
+  // 90% or even 95% of the time.
+  const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
+  const qs = [
+    `.pianoroll`,
+    `tr:first-child`,
+    `th ~ .m:nth-child(${tickData[0] + 2})`, // that th throws everything off =()
+    `.q:nth-child(${tickData[1] + 1})`,
+  ].join(` `);
+  const newPos = document.querySelector(qs);
+  newPos.appendChild(scrubber);
+  scrubber.style.setProperty(`--l`, `0%`);
+  for (let i = 0, ival = interval / 24; i < 24; i++) {
+    setTimeout(() => scrubber.style.setProperty(`--l`, `${(100 * i / 25)|0}%`), i * ival);
   }
 }
 

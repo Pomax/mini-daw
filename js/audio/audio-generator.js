@@ -66,7 +66,6 @@ class AudioGenerator {
 
   markActive(source) {
     this.active.push(source);
-    console.log(`mark active (${this.active.length}):`, source);
     this.updatePolyphonyVolume();
   }
 
@@ -78,7 +77,6 @@ class AudioGenerator {
 
   updatePolyphonyVolume() {
     const mix = 1 / (this.active.length || 1)**0.5;
-    console.log(this.active.length, mix);
     this.output.gain.setValueAtTime(mix, context.currentTime);
   }
 }
