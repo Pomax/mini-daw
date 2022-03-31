@@ -67,10 +67,10 @@ function tryIncrement() {
 }
 
 onmessage = async (e) => {
-  const { start, stop, bpm, divisions } = e.data;
+  const { start, stop, bpm } = e.data;
 
   if (bpm) {
-    const { intervals } = setBPM(bpm, divisions);
+    const { intervals } = setBPM(bpm);
     postMessage({ intervals });
   }
 

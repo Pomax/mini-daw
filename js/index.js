@@ -1,5 +1,5 @@
 import { settings } from "./settings.js";
-import { buildCountingWheel } from "./page/metronome.js";
+import { buildCountingWheel } from "./page/counting-wheel.js";
 import { getDifference } from "./page/utils.js";
 import { listenForUser } from "./page/event-handling.js";
 import {
@@ -17,7 +17,7 @@ const beep = new AudioGenerator();
 const play = (note, millisecondsInTheFuture = 0) => {
   const Hz = getFrequency(note);
   const osc = beep.getOscillator(Hz);
-  osc.play(settings.beepDuration, 64, millisecondsInTheFuture / 1000);
+  osc.play(settings.beepDuration, 64, 0.01 + millisecondsInTheFuture / 1000);
 };
 
 let prevTickData;
@@ -29,7 +29,7 @@ counter.onmessage = async (e) => {
   if (intervals) {
     // special bootstrapping message in response to a "bpm=..., divisions=..." instruction
     buildCountingWheel(
-      intervals.length,
+      settings.divisions,
       (d) => (settings.activeDivision = d),
       settings.activeDivision
     );
@@ -55,7 +55,7 @@ counter.onmessage = async (e) => {
       play(72, future);
     }
 
-    recorder.tick(tickData, timestamp);
+    recorder.tick(tickData, timestamp, qint);
     updatePageUI(tickData, [m, q]);
     updateScrubber(tickData, qint);
 

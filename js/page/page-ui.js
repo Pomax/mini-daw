@@ -104,7 +104,10 @@ export async function updateScrubber(tickData, interval) {
   newPos.appendChild(scrubber);
   scrubber.style.setProperty(`--l`, `0%`);
   for (let i = 0, ival = interval / 24; i < 24; i++) {
-    setTimeout(() => scrubber.style.setProperty(`--l`, `${(100 * i / 25)|0}%`), i * ival);
+    setTimeout(
+      () => scrubber.style.setProperty(`--l`, `${((100 * i) / 25) | 0}%`),
+      i * ival
+    );
   }
 }
 
@@ -168,24 +171,20 @@ function setupRecorder() {
   });
 
   recorder.addListener({
-    noteStarted: ({ note, velocity, start, e }) => {
-      const f = start.length - 1;
-      const [m, q, ..._] = start;
+    noteStarted: ({ note, velocity, start, record }) => {
+      const [m, q, f] = start;
       const quarter = document.querySelector(
         `.pianoroll tr.n${note} .m:nth-child(${m + 2}) .q:nth-child(${q + 1})`
       );
-      quarter.appendChild(e);
-      e.style.left = `${(100 * start[f]) / f}%`;
+      quarter.appendChild(record);
+      record.style.setProperty(`--l`, `${100 * f}%`);
     },
 
-    noteStopped: ({ note, start, stop, e }) => {
-      const f = start.length - 1;
-      const [m1, q1, ..._] = start;
-      const [m2, q2, ...__] = stop;
-      const d1 = start[f];
-      const d2 = stop[f];
-      const v = (d2 - d1) / f + (q2 - q1) + timeSignature[0] * (m2 - m1);
-      e.style.width = `${100 * v}%`;
+    noteStopped: ({ note, start, stop, record }) => {
+      const [m1, q1, f1] = start;
+      const [m2, q2, f2] = stop;
+      const v = f2 - f1 + (q2 - q1) + timeSignature[0] * (m2 - m1);
+      record.style.setProperty(`--w`, `${100 * v}%`);
     },
   });
 }

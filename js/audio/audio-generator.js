@@ -64,6 +64,10 @@ class AudioGenerator {
     return source;
   }
 
+  toggleChorus() {
+    this.sources.forEach((source) => source.toggleChorus());
+  }
+
   markActive(source) {
     this.active.push(source);
     this.updatePolyphonyVolume();
@@ -76,7 +80,7 @@ class AudioGenerator {
   }
 
   updatePolyphonyVolume() {
-    const mix = 1 / (this.active.length || 1)**0.5;
+    const mix = 1 / (this.active.length || 1) ** 0.5;
     this.output.gain.setValueAtTime(mix, context.currentTime);
   }
 }

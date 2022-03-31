@@ -2,6 +2,7 @@ import { settings } from "../settings.js";
 import { router } from "../midi/router.js";
 import { recorder } from "../midi/recorder.js";
 import { connectMIDI } from "../midi/midi.js";
+import { generator } from "../midi/keyboard.js";
 import { master, setReverb } from "../audio/audio-context.js";
 import { slider } from "./slider.js";
 
@@ -130,7 +131,7 @@ export function listenForUser(counter) {
     const btn = evt.target;
     btn.classList.toggle(`enabled`);
     btn.textContent = btn.classList.contains(`enabled`) ? `disable` : `enable`;
-    // FIXME: we removed detune chorus
+    generator.toggleChorus();
   });
 
   const masterVolume = document.querySelector(`span.master`);

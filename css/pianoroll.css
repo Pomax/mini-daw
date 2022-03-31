@@ -74,6 +74,11 @@
   background: pink;
   padding: 3px;
   box-sizing: content-box;
+  --l: 0%;
+  left: var(--l);
+  --w: 100%;
+  width: var(--w);
+  z-index: 2;
 }
 
 .scrubber {

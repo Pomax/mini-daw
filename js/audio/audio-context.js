@@ -46,7 +46,10 @@ const EQcontrols = EQ.map(({ label, node }) => {
   );
   slider.addEventListener(
     `input`,
-    () => (node.gain.value = parseFloat(slider.value))
+    () => {
+      // TODO: FIXME: these sliders need to sum to 1, which is not the case right now
+      node.gain.value = parseFloat(slider.value);
+    }
   );
   return slider;
 });

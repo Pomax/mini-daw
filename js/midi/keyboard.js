@@ -56,7 +56,7 @@ class Key {
 
   onNoteOn(note, velocity) {
     if (note === this.note) {
-      this.play(velocity);
+      this.start(velocity);
     }
   }
 
@@ -190,4 +190,4 @@ class Keyboard {
   }
 }
 
-export { Keyboard };
+export { Keyboard, generator };
