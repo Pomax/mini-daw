@@ -48,21 +48,9 @@ function buildImpulseSelector() {
  * @param {*} flips
  */
 export async function updatePageUI(tickData, flips) {
-  const q = tickData[1];
+  const [m, q] = tickData;
 
-  document
-    .querySelectorAll(`.highlight`)
-    .forEach((e) => e.classList.remove(`highlight`));
-
-  let last, f;
-  tickData.forEach((v, i) => {
-    if (i === 0) return;
-    const n = i > 1 ? `${q * i + v + 1}` : `${(v % 16) + 1}`;
-    const qs = `.d${i} *:nth-child(${n})`;
-    document.querySelector(qs)?.classList.add(`highlight`);
-    last = v;
-    f = i;
-  });
+  startTheWheel(q);
 
   if (flips[1]) {
     document
@@ -80,20 +68,41 @@ export async function updatePageUI(tickData, flips) {
   if (flips[0] && tickData[0] > threshold) addMeasure();
 }
 
-let prevMidi24 = -1;
+/**
+ * ...
+ * @param {*} q
+ */
+function startTheWheel(q) {
+  const qint = settings.intervalValues[1];
+  const qNow = Date.now();
+
+  // update the wheel for the duration of the quarter
+  (function updateWheel() {
+    const diff = Date.now() - qNow;
+    const f = diff / qint;
+    if (f >= 1) return;
+
+    document
+      .querySelectorAll(`.highlight`)
+      .forEach((e) => e.classList.remove(`highlight`));
+
+    for (let i = 2; i < settings.divisions; i++) {
+      const qs = `.d${i} .q${q}`;
+      const n = (f * i) | 0;
+      document.querySelectorAll(qs)?.[n]?.classList.add(`highlight`);
+    }
+
+    requestAnimationFrame(updateWheel);
+  })();
+}
+
+const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
 
 /**
  *
  * @param {*} tickData
  */
-export async function updateScrubber(tickData, interval) {
-  // Update the scrubber position, but only if the current midi24 value
-  // (that is, the smallest division of a quarter note that MIDI devices
-  // count off when running a MIDI clock) is different from the one we
-  // saw on the previous tick. As typical q/24 values are in the tens of
-  // milliseconds range, we don't want to run code that won't do anything
-  // 90% or even 95% of the time.
-  const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
+export async function updateScrubber(tickData) {
   const qs = [
     `.pianoroll`,
     `tr:first-child`,
@@ -103,12 +112,24 @@ export async function updateScrubber(tickData, interval) {
   const newPos = document.querySelector(qs);
   newPos.appendChild(scrubber);
   scrubber.style.setProperty(`--l`, `0%`);
-  for (let i = 0, ival = interval / 24; i < 24; i++) {
-    setTimeout(
-      () => scrubber.style.setProperty(`--l`, `${((100 * i) / 25) | 0}%`),
-      i * ival
-    );
-  }
+  startTheScrub();
+}
+
+/**
+ * ...
+ */
+function startTheScrub() {
+  const qint = settings.intervalValues[1];
+  const qNow = Date.now();
+
+  // update the scrubber for the duration of the quarter
+  (function updateScrubber() {
+    const diff = Date.now() - qNow;
+    const f = diff / qint;
+    if (f >= 1) return;
+    scrubber.style.setProperty(`--l`, `${(100 * f) | 0}%`);
+    requestAnimationFrame(updateScrubber);
+  })();
 }
 
 /**

@@ -124,7 +124,6 @@ class Recorder {
     this.head = 0;
     this.playing = true;
     this.intervals = intervals;
-    console.log(intervals);
   }
 
   clear() {
