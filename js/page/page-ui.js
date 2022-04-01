@@ -5,6 +5,8 @@ import { Keyboard, getColor } from "../midi/keyboard.js";
 import { recorder } from "../midi/recorder.js";
 import { create } from "./utils.js";
 
+const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
+
 // We want to make this user-controllable, of course
 let timeSignature = settings.timeSignature;
 
@@ -12,7 +14,7 @@ let timeSignature = settings.timeSignature;
  *
  * @param {*} n
  */
-export function addMeasure(n = 1) {
+export async function addMeasure(n = 1) {
   while (n--) {
     document.querySelectorAll(`.pianoroll tr`).forEach((row) => {
       const measure = create(`td`);
@@ -95,8 +97,6 @@ function startTheWheel(q) {
     requestAnimationFrame(updateWheel);
   })();
 }
-
-const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
 
 /**
  *
