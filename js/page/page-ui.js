@@ -85,7 +85,7 @@ function startTheWheel(q) {
     if (f >= 1) return;
 
     document
-      .querySelectorAll(`.highlight`)
+      .querySelectorAll(`#metronome .highlight`)
       .forEach((e) => e.classList.remove(`highlight`));
 
     for (let i = 2; i < settings.divisions; i++) {
@@ -181,8 +181,14 @@ function setupRecorder() {
   }
 
   document.addEventListener(`midi:note:play`, ({ detail }) => {
-    const key = document.querySelector(`tr.n${detail.note} th`);
-    key.classList.add(`highlight`);
+    const qs = `tr.n${detail.note} th`;
+    const key = document.querySelector(qs);
+    try {
+      key.classList.add(`highlight`);
+    } catch (err) {
+      console.log(qs);
+      throw err;
+    }
   });
 
   document.addEventListener(`midi:note:stop`, ({ detail }) => {

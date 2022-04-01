@@ -39,14 +39,22 @@ class Recorder {
     this.quarterInterval = quarterInterval;
 
     if (!this.playing) return;
+
     const events = this.getEvents();
     events.forEach((record) => {
       const { active } = Keyboard;
       // schedule the start based on quarter fraction
       setTimeout(() => {
         active.start(record.note, record.velocity);
+        // TODO: highlight the key
+        const qs = `.pianoroll tr.n${record.note} th`;
+        const key = document.querySelector(qs);
+        key.classList.add(`highlight`);
         const timeout = getTimeout(this.intervals, record.start, record.stop);
-        setTimeout(() => active.stop(record.note), timeout);
+        setTimeout(() => {
+          active.stop(record.note);
+          key.classList.remove(`highlight`);
+        }, timeout);
       }, quarterInterval * record.start[2]);
     });
   }
