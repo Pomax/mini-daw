@@ -111,7 +111,6 @@ export async function updateScrubber(tickData) {
   ].join(` `);
   const newPos = document.querySelector(qs);
   newPos.appendChild(scrubber);
-  scrubber.style.setProperty(`--l`, `0%`);
   startTheScrub();
 }
 
@@ -127,7 +126,7 @@ function startTheScrub() {
     const diff = Date.now() - qNow;
     const f = diff / qint;
     if (f >= 1) return;
-    scrubber.style.setProperty(`--l`, `${(100 * f) | 0}%`);
+    scrubber.style.setProperty(`--l`, `${(100 * f).toFixed(2)}%`);
     requestAnimationFrame(updateScrubber);
   })();
 }
