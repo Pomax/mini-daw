@@ -79,6 +79,12 @@
   --w: 100%;
   width: var(--w);
   z-index: 2;
+  outline: none;
+}
+
+.pianoroll tr .m .q .note.playing {
+  background: rgb(49 255 0);
+  border-color: #0caa85;
 }
 
 .scrubber {

@@ -37,6 +37,19 @@
       </div>
 
       <div>EQ: <span class="eq">(...pending...)</span></div>
+     
+      <div>
+        wave: <select id="wave">
+          <option name="sine" value="sine">sine</option>
+          <option name="square" value="square">square</option>
+          <option name="triangle" value="triangle">triangle</option>
+          <option name="sawtooth" value="sawtooth" selected>sawtooth</option>
+        </select>
+        attack:  <input id="attack"  type="range" min="0" max="0.5" step="0.01" value="0.01" />
+        decay:   <input id="decay"   type="range" min="0" max="0.5" step="0.01" value="0" />
+        sustain: <input id="sustain" type="range" min="0" max="1"   step="0.01" value="1" />
+        release: <input id="release" type="range" min="0" max="3"   step="0.1"  value="0" />
+      </div>
 
       <div>
         bpm:

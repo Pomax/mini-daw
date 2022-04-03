@@ -10,11 +10,12 @@ class AudioGenerator {
     output.gain.value = 1.0;
     output.connect(master);
 
-    this.active = [];
     this.sources = [];
     for (let i = 0; i < polyphony; i++) {
       this.sources.push(new AudioSource(this, output));
     }
+    this.inactive = [...this.sources];
+    this.active = [];
 
     this.setupLFO(lfoFrequency, lfoStrength);
   }
@@ -55,17 +56,23 @@ class AudioGenerator {
   }
 
   getOscillator(frequency) {
-    // Get the first oscillator in the list, update it,
-    // and then put it at the back of the list.
-    let source = this.sources.shift();
+    let source = this.inactive.shift();
+    if (!source) this.active.shift();
     if (source.sustained) source.stop();
-    this.sources.push(source);
     source.setFrequency(frequency);
     return source;
   }
 
   toggleChorus() {
-    this.sources.forEach((source) => source.toggleChorus());
+    this.inactive.forEach((source) => source.toggleChorus());
+  }
+
+  setADSR(a, d, s, r) {
+    this.sources.forEach((source) => source.setADSR(a, d, s, r));
+  }
+
+  setWaveForm(name) {
+    this.sources.forEach((source) => source.setWaveForm(name));
   }
 
   markActive(source) {
@@ -76,6 +83,7 @@ class AudioGenerator {
   markSuspended(source) {
     const pos = this.active.findIndex((v) => v === source);
     this.active.splice(pos, 1);
+    this.inactive.push(source);
     this.updatePolyphonyVolume();
   }
 
@@ -85,4 +93,7 @@ class AudioGenerator {
   }
 }
 
-export { AudioGenerator };
+const beeper = new AudioGenerator(4);
+beeper.setADSR(0, 0, 1, 0);
+
+export { AudioGenerator, beeper };

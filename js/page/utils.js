@@ -24,6 +24,18 @@ export function create(tag, attributes = {}, ...content) {
   return element;
 }
 
+/**
+ * ...
+ * @param {} qs 
+ * @param {*} parent 
+ * @returns 
+ */
+export function find(qs, parent = document) {
+  const nodes = parent.querySelectorAll(qs);
+  if (nodes.length === 1) return nodes[0];
+  return nodes;
+}
+
 function setListeners(element) {
   return ([eventType, listener]) => {
     element.addEventListener(eventType, listener);

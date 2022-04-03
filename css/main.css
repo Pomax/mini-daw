@@ -39,7 +39,13 @@ button.chorus.enabled {
 }
 
 .controls *:focus {
-  outline: 2px solid red !important;
+  outline: 2px solid red;
+}
+
+.controls > div:not([class]) {
+  margin: 0.2em;
+  padding: 0.3em 0.5em;
+  border: 1px solid grey;
 }
 
 .flex {

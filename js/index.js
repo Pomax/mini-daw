@@ -1,6 +1,5 @@
 import { settings } from "./settings.js";
 import { buildCountingWheel } from "./page/counting-wheel.js";
-import { getDifference } from "./page/utils.js";
 import { listenForUser } from "./page/event-handling.js";
 import {
   bootstrapPianoRoll,
@@ -10,13 +9,12 @@ import {
   setupUI,
 } from "./page/page-ui.js";
 import { recorder } from "./midi/recorder.js";
-import { AudioGenerator } from "./audio/audio-generator.js";
+import { beeper } from "./audio/audio-generator.js";
 import { getFrequency } from "./audio/get-frequency.js";
 
-const beep = new AudioGenerator();
 const play = (note, millisecondsInTheFuture = 0) => {
   const Hz = getFrequency(note);
-  const osc = beep.getOscillator(Hz);
+  const osc = beeper.getOscillator(Hz);
   osc.play(settings.beepDuration, 64, 0.01 + millisecondsInTheFuture / 1000);
 };
 
@@ -62,27 +60,6 @@ counter.onmessage = async (e) => {
     prevTickData = tickData;
   }
 };
-
-/**
- *
- * @param {*} tickData
- * @returns
- */
-function updateTickData(tickData) {
-  console.log(tickData);
-  const flips = getDifference(tickData, prevTickData);
-  const pos = flips.findIndex((v) => v);
-  if (pos === -1) return;
-
-  prevTickData = tickData;
-
-  // let's beep some beeps!
-  if (flips[0]) play(84);
-  else if (flips[1]) play(67);
-  if (flips[settings.activeDivision]) play(72);
-
-  return flips;
-}
 
 // ========= startup bootstrap =========
 

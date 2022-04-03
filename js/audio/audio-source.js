@@ -1,5 +1,86 @@
 import { context } from "./audio-context.js";
 
+const DEFAULT_ADSR_VALUES = {
+  attack: 0.1,
+  decay: 0.1,
+  sustain: 0.6,
+  release: 0.5,
+};
+
+/**
+ * ......
+ */
+class ADSR {
+  constructor(
+    output,
+    attack = DEFAULT_ADSR_VALUES.attack,
+    decay = DEFAULT_ADSR_VALUES.decay,
+    sustain = DEFAULT_ADSR_VALUES.sustain,
+    release = DEFAULT_ADSR_VALUES.release
+  ) {
+    this.setValues(attack, decay, sustain, release);
+    this.sources = [];
+    this.mix = 1;
+    const envelope = (this.envelope = context.createGain());
+    envelope.gain.value = 0;
+    envelope.connect(output);
+  }
+
+  setValues(attack, decay, sustain, release) {
+    this.attack = attack;
+    this.decay = decay;
+    this.sustain = sustain;
+    this.release = release;
+  }
+
+  get value() {
+    return this.envelope.gain.value;
+  }
+
+  attach(oscillator) {
+    oscillator.connect(this.envelope);
+    this.sources.push(oscillator);
+    this.mix = 1 / (this.sources.length || 1);
+  }
+
+  detach(oscillator) {
+    const pos = this.sources.findIndex((v) => v === oscillator);
+    if (pos === -1) return false;
+
+    this.sources.splice(pos, 1);
+    this.mix = 1 / (this.sources.length || 1);
+    oscillator.disconnect();
+    return true;
+  }
+
+  play(velocity = 0.8, secondsInTheFuture = 0) {
+    const { gain } = this.envelope;
+    gain.setTargetAtTime(
+      velocity * this.mix,
+      context.currentTime + secondsInTheFuture,
+      this.attack
+    );
+    gain.setTargetAtTime(
+      velocity * this.sustain * this.mix,
+      context.currentTime + this.attack + secondsInTheFuture,
+      this.decay
+    );
+  }
+
+  stop(secondsInTheFuture = 0) {
+    const { gain } = this.envelope;
+    gain.cancelScheduledValues(context.currentTime);
+    gain.setTargetAtTime(
+      0,
+      context.currentTime + secondsInTheFuture,
+      this.release
+    );
+  }
+}
+
+/**
+ * ......
+ */
 class AudioSource {
   type = `sawtooth`;
   base = 1;
@@ -9,45 +90,44 @@ class AudioSource {
   constructor(owner, output) {
     this.owner = owner;
 
+    // set up an ADSR envelope
+    const adsr = (this.adsr = new ADSR(output));
+
     // set up an oscillator.
-    let oscillator = (this.oscillator = context.createOscillator());
+    const oscillator = (this.oscillator = context.createOscillator());
     oscillator.type = this.type;
     oscillator.frequency.setValueAtTime(this.base, context.currentTime);
+    oscillator.start();
 
     // set up a detuned second oscillator for "chorus"
-    let oscillator2 = (this.oscillator2 = context.createOscillator());
+    const oscillator2 = (this.oscillator2 = context.createOscillator());
     oscillator2.type = this.type;
     oscillator2.frequency.setValueAtTime(
       this.base * this.detune,
       context.currentTime
     );
-
-    // we use a gain to control attack/decay
-    let volume = (this.volume = context.createGain());
-    volume.gain.value = 0;
-    volume.connect(output);
-    oscillator.connect(volume);
-    oscillator.start();
-
-    let volume2 = (this.volume2 = context.createGain());
-    volume2.gain.value = 0;
-    volume2.connect(output);
-    oscillator2.connect(volume2);
     oscillator2.start();
+
+    // We initially only bind the regular oscillator. The second, detuned
+    // oscillator gets attached/detached when we toggle chorus.
+    adsr.attach(oscillator);
   }
 
   toggleChorus() {
-    this.chorus = !this.chorus;
-    const val = this.volume.gain.value;
-    if (val > 0) {
-      if (this.chorus) {
-        this.volume.gain.setValueAtTime(val / 2, context.currentTime);
-        this.volume2.gain.setValueAtTime(val / 2, context.currentTime);
-      } else {
-        this.volume.gain.setValueAtTime(val * 2, context.currentTime);
-        this.volume2.gain.setValueAtTime(0, context.currentTime);
-      }
+    const { adsr, oscillator2 } = this;
+    if (!adsr.detach(oscillator2)) {
+      adsr.attach(oscillator2);
     }
+  }
+
+  setADSR(a, d, s, r) {
+    this.adsr.setValues(a, d, s, r);
+  }
+
+  setWaveForm(name) {
+    this.type = name;
+    this.oscillator.type = name;
+    this.oscillator2.type = name;
   }
 
   setFrequency(frequency) {
@@ -83,38 +163,18 @@ class AudioSource {
 
   __enable(velocity = 0.8, attack = 0.01, secondsInTheFuture = 0) {
     // only add ourselves as new source if we weren't already active
-    if (this.volume.gain.value === 0) this.owner.markActive(this);
-    if (!this.chorus) {
-      this.volume.gain.setTargetAtTime(
-        velocity,
-        context.currentTime + secondsInTheFuture,
-        attack
-      );
-    } else {
-      this.volume.gain.setTargetAtTime(
-        velocity / 2,
-        context.currentTime + secondsInTheFuture,
-        attack
-      );
-      this.volume2.gain.setTargetAtTime(
-        velocity / 2,
-        context.currentTime + secondsInTheFuture,
-        attack
-      );
-    }
+    if (this.adsr.value === 0) this.owner.markActive(this);
+    this.adsr.play(velocity, secondsInTheFuture);
   }
 
-  stop(decay) {
-    this.__disable(decay);
+  stop(release) {
+    this.__disable(release);
     this.sustained = false;
   }
 
-  __disable(decay = 0.01) {
+  __disable(release = 0.01) {
     this.timeout = clearTimeout(this.timeout);
-    this.volume.gain.setTargetAtTime(0, context.currentTime, decay);
-    if (this.chorus) {
-      this.volume2.gain.setTargetAtTime(0, context.currentTime, decay);
-    }
+    this.adsr.stop();
     this.owner.markSuspended(this);
   }
 

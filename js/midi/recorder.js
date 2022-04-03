@@ -1,6 +1,8 @@
 import { Keyboard } from "./keyboard.js";
+import { midiNotePlay, midiNoteStop } from "./midi.js";
+import * as pianoroll from "../page/pianoroll.js";
 
-function laterThan(moment, tickData, timestamp) {
+function laterThan(moment, tickData) {
   for (let i = 0, e = moment.length; i < e; i++) {
     if (moment[i] > tickData[i]) return true;
   }
@@ -41,21 +43,21 @@ class Recorder {
     if (!this.playing) return;
 
     const events = this.getEvents();
-    events.forEach((record) => {
+    events.forEach((packet) => {
+      const { note, velocity, start, stop, record } = packet;
       const { active } = Keyboard;
       // schedule the start based on quarter fraction
       setTimeout(() => {
-        active.start(record.note, record.velocity);
-        // TODO: highlight the key
-        const qs = `.pianoroll tr.n${record.note} th`;
-        const key = document.querySelector(qs);
-        key.classList.add(`highlight`);
-        const timeout = getTimeout(this.intervals, record.start, record.stop);
+        active.start(note, velocity);
+        midiNotePlay(note);
+        record.classList.add(`playing`);
+        const timeout = getTimeout(this.intervals, start, stop);
         setTimeout(() => {
-          active.stop(record.note);
-          key.classList.remove(`highlight`);
+          active.stop(note);
+          midiNoteStop(note);
+          record.classList.remove(`playing`);
         }, timeout);
-      }, quarterInterval * record.start[2]);
+      }, quarterInterval * start[2]);
     });
   }
 
@@ -86,33 +88,21 @@ class Recorder {
 
   noteon(note, velocity) {
     const noteonTime = Date.now();
-
     if (!this.recording) return;
 
-    // create a piano-roll entry
-    //
-    // TODO: do this in the piano roll based on event listening,
-    // not in the recorder code itself. This should now need to
-    // know anything about HTML/DOM elements.
-    const record = document.createElement(`button`);
-
     const shift = (noteonTime - this.timestamp) / this.quarterInterval;
+    const extended = [...this.tickData, shift];
+    const record = pianoroll.buildRecord(note, velocity, extended, shift);
     const packet = {
       note,
       velocity,
-      start: [...this.tickData, shift],
+      start: extended,
       record,
     };
 
     this.current[note] = packet;
     this.data.push(packet);
     this.listeners.forEach((l) => l.noteStarted(packet));
-
-    record.setAttribute(`class`, `note`);
-    record.setAttribute(`data-note`, note);
-    record.setAttribute(`data-velocity`, velocity);
-    record.setAttribute(`data-start`, packet.start.join(`,`));
-    record.style.setProperty(`--l`, `${100 * shift}%`);
   }
 
   noteoff(note) {

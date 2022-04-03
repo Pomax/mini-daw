@@ -79,4 +79,14 @@ async function connectMIDI() {
   }
 }
 
-export { connectMIDI };
+// document level event for midi notes getting played
+function midiNotePlay(note, velocity) {
+  document.dispatchEvent(new CustomEvent(`midi:note:play`, { detail: { note, velocity }}));
+}
+
+// document level event for midi notes stopping
+function midiNoteStop(note) {
+  document.dispatchEvent(new CustomEvent(`midi:note:stop`, { detail: { note }}));
+}
+
+export { connectMIDI, midiNotePlay, midiNoteStop };

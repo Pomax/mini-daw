@@ -1,9 +1,10 @@
 import { settings } from "../settings.js";
 import { context, EQcontrols } from "../audio/audio-context.js";
 import { IMPULSES } from "../../impulses/impulses.js";
-import { Keyboard, getColor } from "../midi/keyboard.js";
+import { Keyboard, generator } from "../midi/keyboard.js";
 import { recorder } from "../midi/recorder.js";
-import { create } from "./utils.js";
+import { create, find } from "./utils.js";
+import * as pianoroll from "./pianoroll.js";
 
 const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
 
@@ -150,6 +151,26 @@ function buildKeyboard() {
   });
 }
 
+function setupWavePicker() {
+  const w = find(`#wave`);
+  w.addEventListener(`change`, evt => {
+    generator.setWaveForm(w.value);
+  })
+}
+
+/**
+ * 
+ */
+function setupADSR() {
+  const a = find(`#attack`);
+  const d = find(`#decay`);
+  const s = find(`#sustain`);
+  const r = find(`#release`);
+  const update = () => generator.setADSR(+a.value, +d.value, +s.value, +r.value);
+  [a,d,s,r].forEach(e => e.addEventListener(`input`, update));
+  update();
+}
+
 /**
  *
  */
@@ -167,34 +188,7 @@ function buildEQcontrols() {
  *
  */
 function setupRecorder() {
-  const parent = document.querySelector(`.pianoroll`);
-
-  // pianoroll rows
-  for (let i = 128; i > 0; i--) {
-    const row = create(`tr`);
-    const color = getColor(i);
-    row.classList.add(`n${i}`, color);
-    const key = create(`th`);
-    key.classList.add(`key`, `midi${i}`);
-    row.appendChild(key);
-    parent.appendChild(row);
-  }
-
-  document.addEventListener(`midi:note:play`, ({ detail }) => {
-    const qs = `tr.n${detail.note} th`;
-    const key = document.querySelector(qs);
-    try {
-      key.classList.add(`highlight`);
-    } catch (err) {
-      console.log(qs);
-      throw err;
-    }
-  });
-
-  document.addEventListener(`midi:note:stop`, ({ detail }) => {
-    const key = document.querySelector(`tr.n${detail.note} th`);
-    key.classList.remove(`highlight`);
-  });
+  pianoroll.setup();
 
   recorder.addListener({
     noteStarted: ({ note, velocity, start, record }) => {
@@ -243,6 +237,8 @@ export function listenForInitialPageInteraction() {
 
 export function setupUI() {
   buildKeyboard();
+  setupWavePicker();
+  setupADSR();
   buildEQcontrols();
   setupRecorder();
   buildImpulseSelector();
