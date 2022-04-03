@@ -64,12 +64,16 @@ export async function updatePageUI(tickData, flips) {
       .forEach((e) => e.classList.add(`active`));
   }
 
+  /*
   const mCount = document.querySelectorAll(
     `.pianoroll tr:first-child th ~ .m`
   ).length;
   const threshold = mCount - startingMeasureCount;
   if (flips[0] && tickData[0] > threshold) addMeasure();
+  */
 }
+
+const highlights = document.getElementsByClassName(`highlight`);
 
 /**
  * ...
@@ -79,15 +83,17 @@ function startTheWheel(q) {
   const qint = settings.intervalValues[1];
   const qNow = Date.now();
 
+  return; // bypass wheel updating: how much does it hurt?
+
   // update the wheel for the duration of the quarter
   (function updateWheel() {
     const diff = Date.now() - qNow;
     const f = diff / qint;
     if (f >= 1) return;
 
-    document
-      .querySelectorAll(`#metronome .highlight`)
-      .forEach((e) => e.classList.remove(`highlight`));
+    Array.from(highlights).forEach((e) =>
+      e.nodeName === `path` ? e.classList.remove(`highlight`) : ``
+    );
 
     for (let i = 2; i < settings.divisions; i++) {
       const qs = `.d${i} .q${q}`;
@@ -95,7 +101,7 @@ function startTheWheel(q) {
       document.querySelectorAll(qs)?.[n]?.classList.add(`highlight`);
     }
 
-    requestAnimationFrame(updateWheel);
+    setTimeout(updateWheel, 30);
   })();
 }
 
@@ -104,13 +110,14 @@ function startTheWheel(q) {
  * @param {*} tickData
  */
 export async function updateScrubber(tickData) {
+  return; // bypass scrubber
   const qs = [
     `.pianoroll`,
     `tr:first-child`,
     `th ~ .m:nth-child(${tickData[0] + 2})`, // that th throws everything off =()
     `.q:nth-child(${tickData[1] + 1})`,
   ].join(` `);
-  const newPos = document.querySelector(qs);
+  const newPos = find(qs);
   newPos.appendChild(scrubber);
   startTheScrub();
 }
@@ -153,21 +160,22 @@ function buildKeyboard() {
 
 function setupWavePicker() {
   const w = find(`#wave`);
-  w.addEventListener(`change`, evt => {
+  w.addEventListener(`change`, (evt) => {
     generator.setWaveForm(w.value);
-  })
+  });
 }
 
 /**
- * 
+ *
  */
 function setupADSR() {
   const a = find(`#attack`);
   const d = find(`#decay`);
   const s = find(`#sustain`);
   const r = find(`#release`);
-  const update = () => generator.setADSR(+a.value, +d.value, +s.value, +r.value);
-  [a,d,s,r].forEach(e => e.addEventListener(`input`, update));
+  const update = () =>
+    generator.setADSR(+a.value, +d.value, +s.value, +r.value);
+  [a, d, s, r].forEach((e) => e.addEventListener(`input`, update));
   update();
 }
 

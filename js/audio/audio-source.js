@@ -11,13 +11,7 @@ const DEFAULT_ADSR_VALUES = {
  * ......
  */
 class ADSR {
-  constructor(
-    output,
-    attack = DEFAULT_ADSR_VALUES.attack,
-    decay = DEFAULT_ADSR_VALUES.decay,
-    sustain = DEFAULT_ADSR_VALUES.sustain,
-    release = DEFAULT_ADSR_VALUES.release
-  ) {
+  constructor(output, attack, decay, sustain, release) {
     this.setValues(attack, decay, sustain, release);
     this.sources = [];
     this.mix = 1;
@@ -26,7 +20,7 @@ class ADSR {
     envelope.connect(output);
   }
 
-  setValues(attack, decay, sustain, release) {
+  setValues(attack=0.02, decay=0.02, sustain=1, release=0.02) {
     this.attack = attack;
     this.decay = decay;
     this.sustain = sustain;
