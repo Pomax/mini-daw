@@ -1,7 +1,7 @@
 Fix oscillator count:
-- [ ] don't preallocate all MIDI key oscillators
-- [ ] create them on the fly, and reuse them with `osc.frequency.value.setValueAtTime`
-- [ ] legato vs. polyphonic using `setTargetAtTime`
+- [x] don't preallocate all MIDI key oscillators
+- [x] create them on the fly, and reuse them with `osc.frequency.value.setValueAtTime`
+- [ ] legato vs. polyphonic using `setTargetAtTime`?
 
 Make time signature user-manipulable
 
@@ -19,3 +19,8 @@ Playback vs. recording:
 - [ ] only add new measures when recording
   - [ ] only add new measures once we start running out of measures
   - [ ] trim measures when recording stops
+
+
+Most important:
+- [x] update pianoroll measure/scrubber to be a background image with CSS sizing/repeat, and position notes absolutely.
+- [x] make pianoroll a CSS grid

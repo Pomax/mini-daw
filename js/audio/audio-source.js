@@ -20,7 +20,7 @@ class ADSR {
     envelope.connect(output);
   }
 
-  setValues(attack=0.02, decay=0.02, sustain=1, release=0.02) {
+  setValues(attack = 0.02, decay = 0.02, sustain = 1, release = 0.02) {
     this.attack = attack;
     this.decay = decay;
     this.sustain = sustain;
@@ -49,15 +49,16 @@ class ADSR {
 
   play(velocity = 0.8, secondsInTheFuture = 0) {
     const { gain } = this.envelope;
+    const when = context.currentTime + secondsInTheFuture;
     gain.setTargetAtTime(
       velocity * this.mix,
-      context.currentTime + secondsInTheFuture,
+      when,
       this.attack
     );
     gain.setTargetAtTime(
-      velocity * this.sustain * this.mix,
-      context.currentTime + this.attack + secondsInTheFuture,
-      this.decay
+      velocity * this.mix * this.sustain,
+      when + this.attack,
+      this.attack + this.decay
     );
   }
 
@@ -78,7 +79,7 @@ class ADSR {
 class AudioSource {
   type = `sawtooth`;
   base = 1;
-  detune = 1.012;
+  detune = 1.002;
   chorus = false;
 
   constructor(owner, output) {

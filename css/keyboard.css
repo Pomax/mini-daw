@@ -69,3 +69,15 @@
 .keyboard .key.pressed {
   background: lime;
 }
+
+.keyboard .key.uncommon {
+  border-color: black;
+}
+
+.keyboard .key.uncommon.white {
+  background: rgb(194, 180, 201);
+}
+
+.keyboard .key.uncommon.black {
+  background: rgb(101, 76, 123);
+}

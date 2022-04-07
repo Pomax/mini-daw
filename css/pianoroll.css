@@ -2,97 +2,82 @@
   position: relative;
   width: 100%;
   height: 20em;
-  overflow: auto;
+  overflow: scroll;
   border: 1px solid grey;
   background: #1111;
+
+  display: grid;
+  grid-template-columns: var(--key-offset) auto;
+  grid-template-areas: "keys roll";
+
+  --row-height: 8px;
+  --key-offset: 2.5em;
 }
 
-.pianoroll {
-  position: absolute;
-  top: 0;
-  left: 0;
-  table-layout: fixed;
-  border-collapse: collapse;
-  width: 0%;
-}
-
-.pianoroll tr {
-  --key-offset: 2em;
-  height: 0.5em;
-}
-
-.pianoroll tr:nth-child(2n) {
-  background: #1111;
-}
-
-.pianoroll tr th {
+.pianoroll-container .keys {
   position: sticky;
-  z-index: 1;
   left: 0;
-  width: var(--key-offset);
+  z-index: 5;
+  grid-area: "keys";
 }
 
-.pianoroll tr.black th {
+.pianoroll-container .keys .key {
+  height: var(--row-height);
+}
+
+.pianoroll-container .keys .black.key {
   background: black;
 }
 
-.pianoroll tr.white th {
+.pianoroll-container .keys .white.key {
   background: white;
   box-shadow: -1px 1px 0 0 inset black;
 }
 
-.pianoroll tr th.key.highlight {
+.pianoroll-container .keys .key.highlight {
   background: lime;
 }
 
-.pianoroll tr .m {
-  width: 10em;
-  line-height: 0;
+.pianoroll-container .pianoroll {
+  grid-area: roll;
 }
 
-.pianoroll tr .m:first-child {
-  margin-left: var(--key-offset);
-}
-
-.pianoroll tr .m:nth-child(2n) {
-  background: #1111;
-}
-
-.pianoroll tr .m .q {
+.pianoroll-container .pianoroll .roll {
   position: relative;
-  display: inline-block;
-  flex-basis: 100%;
-  height: 0.5em;
-  overflow: visible;
-  margin: -1px;
-  border-left: 1px solid #4144;
+  min-width: 2000%;
+  --roll-offset: 0px;
+  left: var(--roll-offset);
 }
 
-.pianoroll tr .m .q .note {
+.pianoroll-container .pianoroll .roll .note {
+  --t: 0px;
+  --l: 0px;
+  --w: 100px;
+  --v: calc(64 / 128);
+
   position: absolute;
   border: 1px solid red;
   background: pink;
   padding: 3px;
   box-sizing: content-box;
-  --l: 0%;
+
+  top: var(--t);
   left: var(--l);
-  --w: 100%;
   width: var(--w);
   z-index: 2;
   outline: none;
 }
 
-.pianoroll tr .m .q .note.playing {
+.pianoroll-container .pianoroll .roll .note.playing {
   background: rgb(49 255 0);
   border-color: #0caa85;
 }
 
 .scrubber {
-  position: absolute;
-  top: 0;
-  --l: 0;
+  position: relative;
+  --l: 0px;
   left: var(--l);
-  height: calc(128 * 0.5em);
+  height: calc(128 * var(--row-height));
   width: 2px;
   background: red;
 }

@@ -5,6 +5,8 @@ const settings = {
   intervalValues: undefined,
   activeDivision: 2,
   beepDuration: 0.05,
+  quarterInPixels: 40,
+  barHeightInPixels: 8,
 };
 
 export { settings };

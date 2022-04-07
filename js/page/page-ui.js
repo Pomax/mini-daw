@@ -105,36 +105,45 @@ function startTheWheel(q) {
   })();
 }
 
+function getPixelOffset(m, q, f) {
+  const qpm = settings.timeSignature[0];
+  const qip = settings.quarterInPixels;
+  return (qpm * m + q + f) * qip;
+}
+
+function getPixelWidth(mDiff, qDiff, fDiff) {
+  const qpm = settings.timeSignature[0];
+  const qip = settings.quarterInPixels;
+  const durationInQuarters = mDiff * qpm + qDiff + fDiff;
+  return durationInQuarters * qip;
+}
+
 /**
  *
  * @param {*} tickData
  */
 export async function updateScrubber(tickData) {
-  return; // bypass scrubber
-  const qs = [
-    `.pianoroll`,
-    `tr:first-child`,
-    `th ~ .m:nth-child(${tickData[0] + 2})`, // that th throws everything off =()
-    `.q:nth-child(${tickData[1] + 1})`,
-  ].join(` `);
-  const newPos = find(qs);
-  newPos.appendChild(scrubber);
-  startTheScrub();
-}
-
-/**
- * ...
- */
-function startTheScrub() {
+  const [m, q] = tickData;
   const qint = settings.intervalValues[1];
   const qNow = Date.now();
+
+  const container = find(`.pianoroll-container`);
 
   // update the scrubber for the duration of the quarter
   (function updateScrubber() {
     const diff = Date.now() - qNow;
     const f = diff / qint;
     if (f >= 1) return;
-    scrubber.style.setProperty(`--l`, `${(100 * f).toFixed(2)}%`);
+    const left = getPixelOffset(m, q, f);
+    scrubber.style.setProperty(`--l`, `${left}px`);
+
+    const cw2 = scrubber.parentNode.parentNode.clientWidth / 2;
+    if (left > cw2) {
+      container.scroll(left - cw2, container.scrollTop);
+    } else {
+      container.scroll(0, container.scrollTop);
+    }
+    
     requestAnimationFrame(updateScrubber);
   })();
 }
@@ -196,36 +205,27 @@ function buildEQcontrols() {
  *
  */
 function setupRecorder() {
-  pianoroll.setup();
-
   recorder.addListener({
     noteStarted: ({ note, velocity, start, record }) => {
       const [m, q, f] = start;
-      const quarter = document.querySelector(
-        `.pianoroll tr.n${note} .m:nth-child(${m + 2}) .q:nth-child(${q + 1})`
-      );
-      quarter.appendChild(record);
-      record.style.setProperty(`--l`, `${100 * f}%`);
+      const offset = getPixelOffset(m, q, f);
+      record.style.setProperty(`--l`, `${offset}px`);
+      record.style.setProperty(`--t`, `calc(${128 - note} * var(--row-height))`);
+      record.style.setProperty(`--v`, velocity);
+      find(`.pianoroll-container .pianoroll .roll`).appendChild(record);
     },
 
     noteStopped: ({ note, start, stop, record }) => {
       const [m1, q1, f1] = start;
       const [m2, q2, f2] = stop;
-      const v = f2 - f1 + (q2 - q1) + timeSignature[0] * (m2 - m1);
-      record.style.setProperty(`--w`, `${100 * v}%`);
+      const w = getPixelWidth(m2-m1, q2-q1, f2-f1);
+      record.style.setProperty(`--w`, `${w}px`);
     },
   });
 }
 
-let startingMeasureCount = 0;
-
 export function bootstrapPianoRoll() {
-  const p = document.querySelector(`.pianoroll-container`);
-  const t = document.querySelector(`.pianoroll`);
-  while (t.clientWidth < p.clientWidth) {
-    addMeasure();
-    startingMeasureCount++;
-  }
+  pianoroll.setup();
 }
 
 /**

@@ -39,6 +39,7 @@ class Key {
     e.dataset.key = note % 12;
     e.dataset.note = note;
     e.classList.add(getColor(note), `key`);
+    if (note < 21 || note > 108) e.classList.add(`uncommon`);
     const inputPress = (evt) =>
       this.pressed ? undefined : evt.buttons ? this.start(64) : undefined;
     const inputRelease = (evt) => (this.pressed ? this.stop() : undefined);

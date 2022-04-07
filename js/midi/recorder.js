@@ -16,6 +16,15 @@ function getTimeout(intervals, start, stop) {
   return v2 - v1;
 }
 
+let disableContextMenu = false;
+
+document.addEventListener(`contextmenu`, (evt) => {
+  if (disableContextMenu) {
+    evt.preventDefault();
+    disableContextMenu = false;
+  }
+});
+
 class Recorder {
   constructor() {
     this.data = [];
@@ -40,7 +49,7 @@ class Recorder {
     this.timestamp = timestamp;
     this.quarterInterval = quarterInterval;
 
-    if (!this.playing) return;
+    //if (!this.playing) return;
 
     const events = this.getEvents();
     events.forEach((packet) => {
@@ -83,6 +92,11 @@ class Recorder {
     this.current = {};
     this.recording = false;
     this.playing = false;
+    this.data.sort((a, b) => {
+      a = a.start.join(`-`);
+      b = b.start.join(`-`);
+      return a === b ? 0 : a < b ? -1 : 1;
+    });
     return this.data;
   }
 
@@ -103,6 +117,17 @@ class Recorder {
     this.current[note] = packet;
     this.data.push(packet);
     this.listeners.forEach((l) => l.noteStarted(packet));
+
+    // remove event on right click
+    record.addEventListener(`mousedown`, (evt) => {
+      if (evt.button === 0) return;
+      const pos = this.data.findIndex((v) => v === packet);
+      if (pos === -1) return;
+      disableContextMenu = true;
+      evt.preventDefault();
+      this.data.splice(pos, 1);
+      record.parentNode.removeChild(record);
+    });
   }
 
   noteoff(note) {
