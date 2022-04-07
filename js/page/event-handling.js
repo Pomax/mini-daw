@@ -69,9 +69,7 @@ export function listenForUser(counter) {
           }
           if (controller === 115 && value === 127) find(`button.play`).click();
           if (controller === 116 && value === 127) find(`button.stop`).click();
-          if (controller === 117 && value === 127)
-            find(`button.record`).click();
-          console.log(controller, value);
+          if (controller === 117 && value === 127) find(`button.record`).click();
         },
       },
       `control`

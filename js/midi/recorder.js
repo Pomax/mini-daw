@@ -92,6 +92,10 @@ class Recorder {
     this.current = {};
     this.recording = false;
     this.playing = false;
+    this.sortData();
+  }
+
+  sortData() {
     this.data.sort((a, b) => {
       a = a.start.join(`-`);
       b = b.start.join(`-`);
@@ -106,16 +110,24 @@ class Recorder {
 
     const shift = (noteonTime - this.timestamp) / this.quarterInterval;
     const extended = [...this.tickData, shift];
-    const record = pianoroll.buildRecord(note, velocity, extended, shift);
+    this.recordEvent(note, velocity, extended);
+  }
+
+  recordEvent(note, velocity, extended) {
+    const record = pianoroll.buildRecord(note, velocity, extended);
+
     const packet = {
       note,
       velocity,
-      start: extended,
+      start: extended, // [m,q,f]
       record,
     };
 
+    record.setPacket(packet);
+
     this.current[note] = packet;
     this.data.push(packet);
+    this.sortData(); // really we want the event datastructures to automatically insert-sort.
     this.listeners.forEach((l) => l.noteStarted(packet));
 
     // remove event on right click
@@ -128,6 +140,14 @@ class Recorder {
       this.data.splice(pos, 1);
       record.parentNode.removeChild(record);
     });
+
+    return packet;
+  }
+
+  updateEvent(packet, values) {
+    Object.assign(packet, values);
+    if (values.start) this.sortData();
+    this.listeners.forEach((l) => l.noteUpdated(packet));
   }
 
   noteoff(note) {
@@ -137,10 +157,15 @@ class Recorder {
     if (!packet) return;
 
     const shift = (noteoffTime - this.timestamp) / this.quarterInterval;
-    packet.stop = [...this.tickData, shift];
+    const extended = [...this.tickData, shift];
+    this.recordEventStop(packet, extended);
+  }
+
+  recordEventStop(packet, extended) {
+    packet.stop = extended;
     packet.record.setAttribute(`data-stop`, packet.stop.join(`,`));
-    if (this.recording) this.listeners.forEach((l) => l.noteStopped(packet));
-    delete this.current[note];
+    this.listeners.forEach((l) => l.noteStopped(packet));
+    delete this.current[packet.note];
   }
 
   playback(intervals) {

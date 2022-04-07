@@ -56,10 +56,10 @@
   --v: calc(64 / 128);
 
   position: absolute;
-  border: 1px solid red;
   background: pink;
+  border: 1px solid red;
+  box-sizing: border-box;
   padding: 3px;
-  box-sizing: content-box;
 
   top: var(--t);
   left: var(--l);

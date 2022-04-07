@@ -105,19 +105,6 @@ function startTheWheel(q) {
   })();
 }
 
-function getPixelOffset(m, q, f) {
-  const qpm = settings.timeSignature[0];
-  const qip = settings.quarterInPixels;
-  return (qpm * m + q + f) * qip;
-}
-
-function getPixelWidth(mDiff, qDiff, fDiff) {
-  const qpm = settings.timeSignature[0];
-  const qip = settings.quarterInPixels;
-  const durationInQuarters = mDiff * qpm + qDiff + fDiff;
-  return durationInQuarters * qip;
-}
-
 /**
  *
  * @param {*} tickData
@@ -134,7 +121,7 @@ export async function updateScrubber(tickData) {
     const diff = Date.now() - qNow;
     const f = diff / qint;
     if (f >= 1) return;
-    const left = getPixelOffset(m, q, f);
+    const left = pianoroll.toPixels(m, q, f);
     scrubber.style.setProperty(`--l`, `${left}px`);
 
     const cw2 = scrubber.parentNode.parentNode.clientWidth / 2;
@@ -143,7 +130,7 @@ export async function updateScrubber(tickData) {
     } else {
       container.scroll(0, container.scrollTop);
     }
-    
+
     requestAnimationFrame(updateScrubber);
   })();
 }
@@ -205,23 +192,37 @@ function buildEQcontrols() {
  *
  */
 function setupRecorder() {
-  recorder.addListener({
-    noteStarted: ({ note, velocity, start, record }) => {
-      const [m, q, f] = start;
-      const offset = getPixelOffset(m, q, f);
-      record.style.setProperty(`--l`, `${offset}px`);
-      record.style.setProperty(`--t`, `calc(${128 - note} * var(--row-height))`);
-      record.style.setProperty(`--v`, velocity);
-      find(`.pianoroll-container .pianoroll .roll`).appendChild(record);
+  const listener = {
+    noteStarted: (packet) => {
+      listener.noteUpdated(packet);
     },
 
-    noteStopped: ({ note, start, stop, record }) => {
-      const [m1, q1, f1] = start;
-      const [m2, q2, f2] = stop;
-      const w = getPixelWidth(m2-m1, q2-q1, f2-f1);
-      record.style.setProperty(`--w`, `${w}px`);
+    noteStopped: (packet) => {
+      listener.noteUpdated(packet);
     },
-  });
+
+    noteUpdated: ({ note, velocity, start, stop, record }) => {
+      const [m1, q1, f1] = start;
+      if (!stop) {
+        stop = [m1, q1 + 1, f1];
+        if (stop[1] === settings.timeSignature[0]) {
+          stop = [m1 + 1, 0, f1];
+        }
+      }
+      // TODO: make all of these local to record, like setNote
+      const [m2, q2, f2] = stop;
+      const offset = pianoroll.toPixels(m1, q1, f1);
+      record.style.setProperty(`--l`, `${offset}px`);
+      record.setNote(note);
+      record.style.setProperty(`--v`, velocity);
+      const w = pianoroll.toPixels(m2 - m1, q2 - q1, f2 - f1);
+      record.style.setProperty(`--w`, `${w}px`);
+
+      find(`.pianoroll-container .pianoroll .roll`).appendChild(record);
+    },
+  };
+
+  recorder.addListener(listener);
 }
 
 export function bootstrapPianoRoll() {
@@ -233,7 +234,7 @@ export function bootstrapPianoRoll() {
  */
 export function listenForInitialPageInteraction() {
   const initialPageInteraction = (evt) => {
-    console.log(`resuming context`);
+    // console.log(`resuming context`);
     document.removeEventListener(`mousedown`, initialPageInteraction, true);
     document.removeEventListener(`keydown`, initialPageInteraction, true);
     context.resume();
