@@ -58,7 +58,7 @@ function onMidiSuccess(success) {
 // even if midi device access fails, we still have a synth to play with
 function onMidiFail() {
   alert(
-    `Web MIDI is available, but MIDI device access failed (and the\nspec does not give me more details to help you find out why...)`
+    `While Web MIDI is available, MIDI device access failed. Not all browsers have sensible MIDI support, so you may need to fiddle with your browser's MIDI settings, or even install an extension.`
   );
 }
 
