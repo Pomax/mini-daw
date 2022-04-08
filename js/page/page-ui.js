@@ -4,7 +4,7 @@ import { IMPULSES } from "../../impulses/impulses.js";
 import { Keyboard, generator } from "../midi/keyboard.js";
 import { recorder } from "../midi/recorder.js";
 import { create, find } from "./utils.js";
-import * as pianoroll from "./pianoroll.js";
+import * as pianoroll from "./pianoroll/pianoroll.js";
 
 const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
 

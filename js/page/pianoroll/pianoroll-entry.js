@@ -1,4 +1,4 @@
-import { Keyboard } from "../midi/keyboard.js";
+import { Keyboard } from "../../midi/keyboard.js";
 
 class PianorollEntry extends HTMLButtonElement {
   constructor() {

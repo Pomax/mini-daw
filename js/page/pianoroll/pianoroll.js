@@ -1,9 +1,9 @@
-import { settings } from "../settings.js";
-import { find, create } from "./utils.js";
-import { Keyboard, getColor } from "../midi/keyboard.js";
-import { recorder } from "../midi/recorder.js";
+import { settings } from "../../settings.js";
+import { find, create } from "../utils.js";
+import { Keyboard, getColor } from "../../midi/keyboard.js";
+import { recorder } from "../../midi/recorder.js";
 import { generateRollBackground } from "./pianoroll-bg.js";
-import { midiNotePlay, midiNoteStop } from "../midi/midi.js";
+import { midiNotePlay, midiNoteStop } from "../../midi/midi.js";
 
 export function toPixels(m, q, f) {
   return (m * settings.timeSignature[0] + q + f) * settings.quarterInPixels;

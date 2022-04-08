@@ -1,4 +1,4 @@
-import { PianorollEntry } from "./pianoroll-entry.js";
+import { PianorollEntry } from "./pianoroll/pianoroll-entry.js";
 
 function setAttrs(element) {
   return ([name, value]) => {

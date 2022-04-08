@@ -1,6 +1,6 @@
 import { Keyboard } from "./keyboard.js";
 import { midiNotePlay, midiNoteStop } from "./midi.js";
-import * as pianoroll from "../page/pianoroll.js";
+import * as pianoroll from "../page/pianoroll/pianoroll.js";
 
 function laterThan(moment, tickData) {
   for (let i = 0, e = moment.length; i < e; i++) {
