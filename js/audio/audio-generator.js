@@ -57,7 +57,7 @@ class AudioGenerator {
 
   getOscillator(frequency) {
     let source = this.inactive.shift();
-    if (!source) this.active.shift();
+    if (!source) source = this.active.shift();
     if (source.sustained) source.stop();
     source.setFrequency(frequency);
     return source;

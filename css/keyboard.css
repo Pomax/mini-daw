@@ -16,10 +16,6 @@
   position: relative;
 }
 
-.keyboard div.black {
-  top: 2px;
-}
-
 .keyboard div.black .key {
   border-top: 0px;
 }

@@ -24,7 +24,6 @@ function slider(options, container = undefined) {
       console.log(`down`);
       slider.value = parseFloat(slider.value) - step;
     }
-    console.log(key, slider.value, step);
   });
 
   if (container) container.append(slider);

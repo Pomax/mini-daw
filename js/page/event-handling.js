@@ -3,7 +3,7 @@ import { router } from "../midi/router.js";
 import { recorder } from "../midi/recorder.js";
 import { connectMIDI } from "../midi/midi.js";
 import { generator } from "../midi/keyboard.js";
-import { master, setReverb } from "../audio/audio-context.js";
+import { master, setReverb, setOverdrive } from "../audio/audio-context.js";
 import { slider } from "./slider.js";
 import { find } from "./utils.js";
 
@@ -69,7 +69,8 @@ export function listenForUser(counter) {
           }
           if (controller === 115 && value === 127) find(`button.play`).click();
           if (controller === 116 && value === 127) find(`button.stop`).click();
-          if (controller === 117 && value === 127) find(`button.record`).click();
+          if (controller === 117 && value === 127)
+            find(`button.record`).click();
         },
       },
       `control`
@@ -111,6 +112,10 @@ export function listenForUser(counter) {
 
   find(`#reverb`).addEventListener(`change`, (evt) => {
     setReverb(evt.target.value);
+  });
+
+  find(`#overdrive`).addEventListener(`input`, (evt) => {
+    setOverdrive(0 - parseFloat(evt.target.value));
   });
 
   const pitch = find(`input.pitch`);

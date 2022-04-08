@@ -34,6 +34,15 @@
           <option value="" selected>none</option>
         </select>
         chorus: <button class="chorus">enable</button>
+        overdrive:
+        <input
+          id="overdrive"
+          type="range"
+          min="0"
+          max="0.95"
+          value="0"
+          step="0.01"
+        />
       </div>
 
       <div>EQ: <span class="eq">(...pending...)</span></div>
@@ -103,24 +112,25 @@
         <button class="stop">stop</button>
         <button class="record">record</button>
       </div>
+    </section>
 
-      <svg id="metronome" viewBox="0 0 500 500" id="circles"></svg>
+    <svg id="metronome" viewBox="0 0 500 500" id="circles"></svg>
 
-      <div class="pianoroll-container">
-        <div class="keys"></div>
-        <div class="pianoroll">
-          <div class="roll">
-            <div class="scrubber"></div>
-          </div>
+    <div class="pianoroll-container">
+      <div class="keys"></div>
+      <div class="pianoroll">
+        <div class="roll">
+          <div class="scrubber"></div>
         </div>
       </div>
-    </section>
+    </div>
 
     <div class="keyboard">
       <div class="black"></div>
       <div class="white"></div>
     </div>
 
+    <!--
     <div>
       <p>
         Total number of ticks processed over
@@ -128,5 +138,6 @@
         <span class="tick-count">(...pending...)</span>
       </p>
     </div>
+    -->
   </body>
 </html>

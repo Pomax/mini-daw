@@ -43,11 +43,12 @@ class Key {
     const inputPress = (evt) =>
       this.pressed ? undefined : evt.buttons ? this.start(64) : undefined;
     const inputRelease = (evt) => (this.pressed ? this.stop() : undefined);
-    e.addEventListener(`mousedown`, inputPress);
-    e.addEventListener(`mouseover`, inputPress);
-    e.addEventListener(`touchstart`, inputPress);
-    document.addEventListener(`mouseup`, inputRelease);
-    document.addEventListener(`touchend`, inputRelease);
+    const passive = { passive: true };
+    e.addEventListener(`mousedown`, inputPress, passive);
+    e.addEventListener(`mouseover`, inputPress, passive);
+    e.addEventListener(`touchstart`, inputPress, passive);
+    document.addEventListener(`mouseup`, inputRelease, passive);
+    document.addEventListener(`touchend`, inputRelease, passive);
     return e;
   }
 

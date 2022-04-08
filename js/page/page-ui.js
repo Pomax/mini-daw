@@ -83,8 +83,6 @@ function startTheWheel(q) {
   const qint = settings.intervalValues[1];
   const qNow = Date.now();
 
-  return; // bypass wheel updating: how much does it hurt?
-
   // update the wheel for the duration of the quarter
   (function updateWheel() {
     const diff = Date.now() - qNow;
