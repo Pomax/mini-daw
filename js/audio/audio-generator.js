@@ -64,7 +64,7 @@ class AudioGenerator {
   }
 
   toggleChorus() {
-    this.inactive.forEach((source) => source.toggleChorus());
+    this.sources.forEach((source) => source.toggleChorus());
   }
 
   setADSR(a, d, s, r) {
