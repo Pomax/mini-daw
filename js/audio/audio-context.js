@@ -69,8 +69,6 @@ for (let i = 0, e = EQ.length; i < e; i++) {
   }
 }
 
-// TODO: FIXME: make the EQ volume-balanced
-
 // we record the EQ's first node as the start of the output chain
 const output = EQ[0].node;
 

@@ -202,6 +202,9 @@ function setupRecorder() {
     },
 
     noteUpdated: ({ note, velocity, start, stop, record }) => {
+      record.setNote(note);
+      record.setVelocity(velocity);
+
       const [m1, q1, f1] = start;
       if (!stop) {
         stop = [m1, q1 + 1, f1];
@@ -209,14 +212,12 @@ function setupRecorder() {
           stop = [m1 + 1, 0, f1];
         }
       }
-      // TODO: make all of these local to record, like setNote
       const [m2, q2, f2] = stop;
       const offset = pianoroll.toPixels(m1, q1, f1);
-      record.style.setProperty(`--l`, `${offset}px`);
-      record.setNote(note);
-      record.style.setProperty(`--v`, velocity);
       const w = pianoroll.toPixels(m2 - m1, q2 - q1, f2 - f1);
-      record.style.setProperty(`--w`, `${w}px`);
+
+      record.setOffset(offset);
+      record.setLength(w);
 
       find(`.pianoroll-container .pianoroll .roll`).appendChild(record);
     },

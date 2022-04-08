@@ -1,8 +1,9 @@
 import { settings } from "../settings.js";
 import { find, create } from "./utils.js";
 import { Keyboard, getColor } from "../midi/keyboard.js";
-import { midiNotePlay, midiNoteStop } from "../midi/midi.js";
 import { recorder } from "../midi/recorder.js";
+import { generateRollBackground } from "./pianoroll-bg.js";
+import { midiNotePlay, midiNoteStop } from "../midi/midi.js";
 
 export function toPixels(m, q, f) {
   return (m * settings.timeSignature[0] + q + f) * settings.quarterInPixels;
@@ -18,41 +19,6 @@ export function toQuarter(pixels, quantize = 1) {
   let p = (f / quantize) | 0;
   f = p * quantize;
   return [m, q, f];
-}
-
-function generateRollBackground(qs, w, h) {
-  const cvs = create(`canvas`);
-  cvs.width = w;
-  cvs.height = h;
-  const ctx = cvs.getContext(`2d`);
-  const styles = {
-    main: `#e0e0e0`,
-    darker: `#d2d2d2`,
-    lighter: `#efefef`,
-    border: `#4144`,
-  };
-
-  ctx.resetTransform();
-
-  const rect = (color, x, y, w, h) => {
-    ctx.strokeStyle = ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeRect(x, y, w, h);
-  };
-
-  ctx.translate(-0.5, -0.5);
-  rect(styles.main, 0, 0, w, h);
-  rect(styles.lighter, w / 2, 0, w / 2, h / 2);
-  rect(styles.darker, 0, h / 2, w / 2, h / 2);
-
-  ctx.resetTransform();
-  ctx.translate(0.5, 0.5);
-  for (let i = 0, q = 2 * qs; i < q; i++) {
-    ctx.strokeStyle = ctx.fillStyle = styles.border;
-    ctx.fillRect((i * w) / q, 0, 1, h);
-  }
-
-  return cvs.toDataURL();
 }
 
 let roll;
@@ -120,72 +86,22 @@ export function setup() {
   });
 }
 
-export function buildRecord(note, velocity, start, shift) {
-  const record = create(`button`, {
-    class: `note`,
-    "data-note": note,
-    "data-velocity": velocity,
-    "data-start": start.join(`,`),
-  });
+export function buildRecord(note, velocity, start) {
+  const record = create(`pianoroll-entry`);
 
-  let packet = { note };
-
-  record.setNote = (note) => {
-    packet.note = note;
-    record.dataset.note = note;
-    record.style.setProperty(`--t`, `calc(${127 - note} * var(--row-height))`);
-  };
-
-  record.setPacket = (p) => (packet = p);
-
-  record.style.setProperty(`--l`, `${100 * shift}%`);
-
-  record.addEventListener(`mousedown`, (evt) => {
-    if (evt.button !== 0) return;
-    record.classList.add(`playing`);
-    Keyboard.active.start(packet.note, packet.velocity);
-  });
-
-  document.addEventListener(`mouseup`, (evt) => {
-    if (evt.button !== 0) return;
-    record.classList.remove(`playing`);
-    Keyboard.active.stop(packet.note);
-  });
-
-  // move record around on click-drag
-  let down = false;
-
-  const getxy = (evt) => {
-    let x = evt.offsetX;
-    let y = evt.offsetY;
-    if (evt.target === record) {
-      x += record.offsetLeft;
-      y += record.offsetTop;
-    }
-    return { x, y };
-  };
-
-  record.addEventListener(`mousedown`, (evt) => {
-    const { x } = getxy(evt);
-    down = {
-      x: x,
-      start: packet.start.slice(),
-      stop: packet.stop.slice(),
-    };
-  });
-
-  document.addEventListener(`mouseup`, () => {
-    down = false;
-    Keyboard.active.stop(packet.note);
-  });
+  record.setNote(note);
+  record.setVelocity(velocity);
+  record.setStart(start);
 
   roll.addEventListener(`mousemove`, (evt) => {
-    if (!down) return;
+    if (!record.down) return;
 
-    const { x, y } = getxy(evt);
+    const { down, packet } = record;
+    const { x, y } = record.getXY(evt);
 
     // up/down movement
     const note = (128 - y / settings.barHeightInPixels) | 0;
+
     if (note !== packet.note) {
       Keyboard.active.stop(packet.note);
       record.setNote(note);
@@ -195,8 +111,9 @@ export function buildRecord(note, velocity, start, shift) {
     // left/right movement
     //
     // Note: in order to preserve the note length with quantization
-    // turned on, we need to calculate the new end position as
-    // "the new start in pixels, plus the note length, in pixels".
+    // turned on, we need to calculate the new end position as "the
+    // new start in pixels, plus the original note length, in pixels".
+    //
     const diff = x - down.x;
     const quantize = 1 / settings.divisions; // TODO: make this user-controllable separately
     const spix = toPixels(...down.start);

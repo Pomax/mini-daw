@@ -1,3 +1,5 @@
+import { PianorollEntry } from "./pianoroll-entry.js";
+
 function setAttrs(element) {
   return ([name, value]) => {
     element.setAttribute(name, value);
@@ -12,8 +14,16 @@ function setAttrs(element) {
  * @returns
  */
 export function create(tag, attributes = {}, ...content) {
-  const element = document.createElement(tag);
+  let element;
+
+  if ((element = customElements.get(tag))) {
+    element = new element();
+  } else {
+    element = document.createElement(tag);
+  }
+
   Object.entries(attributes).forEach(setAttrs(element));
+
   if (content)
     content.forEach((c) => {
       if (typeof c === `string`) {
@@ -21,14 +31,15 @@ export function create(tag, attributes = {}, ...content) {
       }
       element.appendChild(c);
     });
+
   return element;
 }
 
 /**
  * ...
- * @param {} qs 
- * @param {*} parent 
- * @returns 
+ * @param {} qs
+ * @param {*} parent
+ * @returns
  */
 export function find(qs, parent = document) {
   const nodes = parent.querySelectorAll(qs);

@@ -184,8 +184,6 @@ class AudioSource {
       1000 * (durationInSeconds + secondsInTheFuture)
     );
   }
-
-  // TODO: some ADSR control would be nice
 }
 
 export { AudioSource };

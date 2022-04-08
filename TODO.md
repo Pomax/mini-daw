@@ -13,13 +13,6 @@ Make time signature user-manipulable
   - [ ] update timing wheel
   - [ ] update piano roll
 
-Playback vs. recording:
-
-- [ ] auto-stop playback when we've run out of measures
-- [ ] only add new measures when recording
-  - [ ] only add new measures once we start running out of measures
-  - [ ] trim measures when recording stops
-
 
 Most important:
 - [x] update pianoroll measure/scrubber to be a background image with CSS sizing/repeat, and position notes absolutely.
