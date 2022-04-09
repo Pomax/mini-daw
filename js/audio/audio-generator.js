@@ -91,6 +91,10 @@ class AudioGenerator {
     const mix = 1 / (this.active.length || 1) ** 0.5;
     this.output.gain.setValueAtTime(mix, context.currentTime);
   }
+
+  stopAll() {
+    this.sources.forEach((source) => source.stop());
+  }
 }
 
 const beeper = new AudioGenerator(4);

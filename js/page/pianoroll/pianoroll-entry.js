@@ -1,15 +1,54 @@
+import { settings } from "../../settings.js";
 import { Keyboard } from "../../midi/keyboard.js";
+import { create } from "../utils.js";
+import { toPixels, toQuarter } from "./pianoroll.js";
 
 class PianorollEntry extends HTMLButtonElement {
   constructor() {
     super();
     this.packet = {};
     this.down = false;
+    this.connected = false;
   }
 
   connectedCallback() {
-    this.classList.add(`note`);
-    this.setupListeners();
+    if (!this.connected) {
+      this.classList.add(`note`);
+      this.setupResize();
+      this.setupListeners();
+      this.connected = true;
+    }
+  }
+
+  setupResize() {
+    const handle = create(`button`);
+    handle.classList.add(`handle`);
+    this.appendChild(handle);
+    let down = false;
+    handle.addEventListener(`mousedown`, (evt) => {
+      evt.stopPropagation();
+      down = {
+        x: evt.pageX,
+        len: this.length,
+      };
+    });
+    document.addEventListener(`mousemove`, (evt) => {
+      if (down) {
+        evt.stopPropagation();
+        down.diff = evt.pageX - down.x;
+        this.setLength(down.len + down.diff);
+      }
+    });
+    document.addEventListener(`mouseup`, (evt) => {
+      if (down) {
+        evt.stopPropagation();
+        const startpx = toPixels(...this.packet.start);
+        const endpx = startpx + down.len + down.diff;
+        console.log(startpx, endpx);
+        this.packet.stop = toQuarter(endpx, settings.divisions);
+        down = false;
+      }
+    });
   }
 
   setupListeners() {
@@ -61,6 +100,7 @@ class PianorollEntry extends HTMLButtonElement {
   }
 
   setLength(length) {
+    this.length = length;
     this.style.setProperty(`--w`, `${length}px`);
   }
 

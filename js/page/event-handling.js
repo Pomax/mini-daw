@@ -10,6 +10,10 @@ import { find } from "./utils.js";
 let startTime;
 
 export function listenForUser(counter) {
+  const playButton = find(`button.play`);
+  const stopButton = find(`button.stop`);
+  const recordButton = find(`button.record`);
+
   find(`button.midi`).addEventListener(`click`, async (evt) => {
     evt.target.setAttribute(`disabled`, `disabled`);
     find(`button.record`).removeAttribute(`disabled`);
@@ -67,47 +71,51 @@ export function listenForUser(counter) {
                 new KeyboardEvent(`keyup`, { key: `Arrow Down` })
               );
           }
-          if (controller === 115 && value === 127) find(`button.play`).click();
-          if (controller === 116 && value === 127) find(`button.stop`).click();
-          if (controller === 117 && value === 127)
-            find(`button.record`).click();
+          if (controller === 115 && value === 127) playButton.click();
+          if (controller === 116 && value === 127) stopButton.click();
+          if (controller === 117 && value === 127) recordButton.click();
         },
       },
       `control`
     );
   });
 
-  find(`button.record`).addEventListener(`click`, () => {
+  recordButton.addEventListener(`click`, () => {
     startTime = performance.now();
     // const old = recorder.clear();
     recorder.start();
     counter.postMessage({ start: true });
+    stopButton.disabled = false;
+    playButton.disabled = true;
+    recordButton.disabled = true;
   });
-
-  const playButton = find(`button.play`);
-  const stopButton = find(`button.stop`);
 
   stopButton.addEventListener(`click`, () => {
     const runtime = performance.now() - startTime;
     find(`span.runtime`).textContent = runtime.toFixed();
     counter.postMessage({ stop: true });
     recorder.stop(); // what do we want to do with the old data?
-    find(`button.play`).disabled = false;
+    generator.stopAll();
+    stopButton.disabled = true;
+    playButton.disabled = false;
+    recordButton.disabled = false;
   });
 
   playButton.addEventListener(`click`, ({ target }) => {
-    target.disabled = true;
     recorder.playback(settings.intervalValues);
     counter.postMessage({ start: true });
+    playButton.disabled = true;
+    stopButton.disabled = false;
+    recordButton.disabled = true;
   });
 
-  document.addEventListener(`keypress`, evt => {
+  document.addEventListener(`keypress`, (evt) => {
     if (evt.key === ` `) {
       if (playButton.disabled) {
         stopButton.click();
       } else playButton.click();
     }
-  })
+  });
 
   find(`#bpm`).addEventListener(`change`, (evt) => {
     counter.postMessage({ stop: true });

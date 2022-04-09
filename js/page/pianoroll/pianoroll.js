@@ -9,8 +9,11 @@ export function toPixels(m, q, f) {
   return (m * settings.timeSignature[0] + q + f) * settings.quarterInPixels;
 }
 
-// `quantize` is a a fraction-of-a-quarter value
+// `quantize` is a a fraction-of-a-quarter value, so if we
+// receive a value over 1, we can assume the call forgot
+// to turn it into a fraction.
 export function toQuarter(pixels, quantize = 1) {
+  if (quantize > 1) quantize = 1 / quantize;
   let f = pixels / settings.quarterInPixels;
   let q = f | 0;
   let m = (q / settings.timeSignature[0]) | 0;
