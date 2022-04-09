@@ -14,12 +14,12 @@ onmessage = async (e) => {
     postMessage({ intervals });
   }
 
-  if (start) {
+  if (start && !intervalTimer) {
     markStart();
     intervalTimer = setInterval(tryIncrement, 5);
   }
 
-  if (stop) clearInterval(intervalTimer);
+  if (stop) intervalTimer = clearInterval(intervalTimer);
 };
 
 function setBPM(bpm = 125) {

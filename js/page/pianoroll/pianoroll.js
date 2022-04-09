@@ -75,7 +75,6 @@ export function setup() {
     let m = (q / settings.timeSignature[0]) | 0;
     q -= m * settings.timeSignature[0];
     f %= 1;
-    console.log(x, y, note, m, q, f);
     const packet = recorder.recordEvent(note, 64, [m, q, f]);
     const stop = [m, q + 1, f];
     if (stop[1] === settings.timeSignature[0]) {

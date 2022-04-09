@@ -84,7 +84,10 @@ export function listenForUser(counter) {
     counter.postMessage({ start: true });
   });
 
-  find(`button.stop`).addEventListener(`click`, () => {
+  const playButton = find(`button.play`);
+  const stopButton = find(`button.stop`);
+
+  stopButton.addEventListener(`click`, () => {
     const runtime = performance.now() - startTime;
     find(`span.runtime`).textContent = runtime.toFixed();
     counter.postMessage({ stop: true });
@@ -92,11 +95,19 @@ export function listenForUser(counter) {
     find(`button.play`).disabled = false;
   });
 
-  find(`button.play`).addEventListener(`click`, ({ target }) => {
+  playButton.addEventListener(`click`, ({ target }) => {
     target.disabled = true;
     recorder.playback(settings.intervalValues);
     counter.postMessage({ start: true });
   });
+
+  document.addEventListener(`keypress`, evt => {
+    if (evt.key === ` `) {
+      if (playButton.disabled) {
+        stopButton.click();
+      } else playButton.click();
+    }
+  })
 
   find(`#bpm`).addEventListener(`change`, (evt) => {
     counter.postMessage({ stop: true });

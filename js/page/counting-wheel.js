@@ -1,6 +1,9 @@
+import { find } from "./utils.js";
+
+const wheel = find(`svg#wheel`);
 const { sin, cos, PI } = Math;
 const TAU = PI * 2;
-const vb = metronome.getAttribute(`viewBox`).split(` `).map(parseFloat);
+const vb = wheel.getAttribute(`viewBox`).split(` `).map(parseFloat);
 const c = vb[2] / 2;
 
 function rotate(x, y, a) {
@@ -13,7 +16,8 @@ function generate(levels = 10, highlightFn, activeDivision) {
   const gap = 1;
   const thickness = (c - (levels + 1) * gap) / (levels + 1);
 
-  for (let l = 0; l < levels - 1; l++) {
+  // TODO: FIXME: this should be i < levels?
+  for (let l = 0; l < levels; l++) {
     let g = document.createElementNS(`http://www.w3.org/2000/svg`, `g`);
     groups.push(g);
     g.classList.add(`d${l + 1}`);
@@ -68,8 +72,8 @@ function generate(levels = 10, highlightFn, activeDivision) {
     }
   }
 
-  metronome.textContent = ``;
-  groups.reverse().forEach((g) => metronome.appendChild(g));
+  wheel.textContent = ``;
+  groups.reverse().forEach((g) => wheel.appendChild(g));
 }
 
 export { generate as buildCountingWheel };

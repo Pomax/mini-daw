@@ -51,37 +51,45 @@ function buildImpulseSelector() {
  * @param {*} flips
  */
 export async function updatePageUI(tickData, flips) {
-  const [m, q] = tickData;
-
-  startTheWheel(q);
-
-  if (flips[1]) {
-    document
-      .querySelectorAll(`path.active`)
-      .forEach((e) => e.classList.remove(`active`));
-    document
-      .querySelectorAll(`path.q${q}`)
-      .forEach((e) => e.classList.add(`active`));
-  }
-
-  /*
-  const mCount = document.querySelectorAll(
-    `.pianoroll tr:first-child th ~ .m`
-  ).length;
-  const threshold = mCount - startingMeasureCount;
-  if (flips[0] && tickData[0] > threshold) addMeasure();
-  */
+  //startTheWheel(tickData);
+  runTicker(tickData);
 }
 
-const highlights = document.getElementsByClassName(`highlight`);
+function runTicker(tickData) {
+  const [m, q] = tickData;
+
+  find(`.ticker .m`).textContent = `${m | 0}`.padStart(2, `0`);
+  find(`.ticker .q`).textContent = `${q | 0}`.padStart(2, `0`);
+
+  const qint = settings.intervalValues[1];
+  const qNow = Date.now();
+
+  (function updateTicker() {
+    const diff = Date.now() - qNow;
+    const f = diff / qint;
+    if (f >= 1) return;
+    find(`.ticker .f`).textContent = `${(f * 1000) | 0}`.padStart(4, `0`);
+    setTimeout(updateTicker, 30);
+  })();
+}
+
+// helper: round a value to its respective (floored) step
+function step(val, total, steps) {
+  const slice = total / steps;
+  const f = (val / slice) | 0;
+  return f * slice;
+}
 
 /**
  * ...
  * @param {*} q
  */
-function startTheWheel(q) {
+function startTheWheel([m, q]) {
   const qint = settings.intervalValues[1];
   const qNow = Date.now();
+  const circles = [...new Array(settings.divisions)].map((_, i) =>
+    find(`g.d${i + 1}`)
+  );
 
   // update the wheel for the duration of the quarter
   (function updateWheel() {
@@ -89,15 +97,10 @@ function startTheWheel(q) {
     const f = diff / qint;
     if (f >= 1) return;
 
-    Array.from(highlights).forEach((e) =>
-      e.nodeName === `path` ? e.classList.remove(`highlight`) : ``
-    );
-
-    for (let i = 2; i < settings.divisions; i++) {
-      const qs = `.d${i} .q${q}`;
-      const n = (f * i) | 0;
-      document.querySelectorAll(qs)?.[n]?.classList.add(`highlight`);
-    }
+    circles.forEach((circle, i) => {
+      const angle = q * 90 + step(f * 90, 90, i + 1);
+      circle.style.setProperty(`--angle`, `${angle}deg`);
+    });
 
     setTimeout(updateWheel, 30);
   })();

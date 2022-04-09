@@ -1,4 +1,5 @@
 @import url(main.css);
 @import url(keyboard.css);
-@import url(metronome.css);
+@import url(counting-wheel.css);
 @import url(pianoroll.css);
+@import url(ticker.css);

@@ -22,8 +22,8 @@ export function generateRollBackground(qs, w, h) {
 
   ctx.translate(-0.5, -0.5);
   rect(styles.main, 0, 0, w, h);
-  rect(styles.lighter, w / 2, 0, w / 2, h / 2);
-  rect(styles.darker, 0, h / 2, w / 2, h / 2);
+  rect(styles.lighter, 1 + w / 2, 0, w / 2, h / 2);
+  rect(styles.darker, 0, 1 + h / 2, w / 2, h / 2);
 
   ctx.resetTransform();
   ctx.translate(0.5, 0.5);

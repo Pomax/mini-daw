@@ -111,10 +111,14 @@
         <button class="play">play</button>
         <button class="stop">stop</button>
         <button class="record">record</button>
+
+        <span class="ticker">
+          <span class="m"">00</span>:<span class="q"">00</span>:<span class="f">0000</span>
+        </span>
       </div>
     </section>
 
-    <svg id="metronome" viewBox="0 0 500 500" id="circles"></svg>
+    <svg id="wheel" viewBox="0 0 500 500" id="circles"></svg>
 
     <div class="pianoroll-container">
       <div class="keys"></div>
@@ -125,9 +129,11 @@
       </div>
     </div>
 
-    <div class="keyboard">
-      <div class="black"></div>
-      <div class="white"></div>
+    <div  style="text-align: center">
+      <div class="keyboard">
+        <div class="black"></div>
+        <div class="white"></div>
+      </div>
     </div>
 
     <!--

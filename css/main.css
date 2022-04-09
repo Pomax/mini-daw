@@ -19,10 +19,6 @@ body {
   overflow: auto;
 }
 
-body > div + div {
-  margin-top: 1em;
-}
-
 input[type="range"] {
   vertical-align: middle;
 }

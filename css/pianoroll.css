@@ -9,6 +9,7 @@
   display: grid;
   grid-template-columns: var(--key-offset) auto;
   grid-template-areas: "keys roll";
+  resize: vertical;
 
   --row-height: 8px;
   --key-offset: 2.5em;

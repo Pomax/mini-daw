@@ -1,0 +1,9 @@
+.ticker {
+  display: inline-block;
+  background: #444;
+  padding: 2px 5px 0px;
+  color: white;
+  font-family: Courier New;
+  font-weight: bold;
+  box-shadow: inset 3px 3px 1px 1px #666, inset -1px -1px 1px 0 #aaa;
+}

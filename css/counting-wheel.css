@@ -1,0 +1,28 @@
+#wheel {
+  --dim: 15em;
+  width: var(--dim);
+  height: var(--dim);
+  display: none;
+}
+
+#wheel g.prominent,
+#wheel g:hover {
+  fill: black;
+}
+
+#wheel g {
+  fill: grey;
+  cursor: pointer;
+  --angle: 0deg;
+  transform: rotate(var(--angle));
+  transform-origin: 50% 50%;
+}
+
+
+#wheel g path:first-child {
+  fill: #4673a4;
+}
+
+#wheel g.prominent path:first-child {
+  fill: #00dbff;
+}
