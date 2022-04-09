@@ -58,7 +58,7 @@ export async function updatePageUI(tickData, flips) {
 function runTicker(tickData) {
   const [m, q] = tickData;
 
-  find(`.ticker .m`).textContent = `${m | 0}`.padStart(2, `0`);
+  find(`.ticker .m`).textContent = `${m | 0}`.padStart(3, `0`);
   find(`.ticker .q`).textContent = `${q | 0}`.padStart(2, `0`);
 
   const qint = settings.intervalValues[1];

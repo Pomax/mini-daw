@@ -1,0 +1,36 @@
+<pre>
+Transport controls:
+- [ ] add a way to place the scrubber (top transport bar?)
+- [ ] make play "play from scrubber" instead of from 0:0:0
+- [ ] relabel "stop" as "pause" since it leaves the scrubber where it is.
+- [ ] create real "stop" button that halts play and sets scrubber to 0:0:0
+
+Fix oscillator count:
+- [ ] legato vs. polyphonic toggle, using `setTargetAtTime`?
+
+Make time signature user-manipulable
+- [x] add to settings
+- [x] add HTML controls
+- [ ] update piano roll to use settings
+- add listeners for html controls
+  - [ ] update timing wheel
+  - [ ] update piano roll
+
+Pianoroll nice to haves
+- [ ] add a "quantize" option
+- [ ] add a "grid resolution" picker and "snap to grid" checkbox
+- [x] when click-placing notes, align to current quarter
+- [ ] add note groups
+  - [ ] add "control-click-drag" for selecting a bunch of notes, grouping, and then performing group-based repositioning.
+  - [ ] always use note groups for repositioning, even when moving individual keys
+    - [ ] only play notes when moving groups-of-one
+
+DONE:
+
+- [x] update pianoroll measure/scrubber to be a background image with CSS sizing/repeat, and position notes absolutely.
+- [x] make pianoroll a CSS grid
+- [x] don't preallocate all MIDI key oscillators
+  - [x] create them on the fly, and reuse them with `osc.frequency.value.setValueAtTime`
+- [ ] decommission timing wheel (T_T) in favour of mmm:qq:ffff timing information
+
+</pre>

@@ -44,7 +44,6 @@ class PianorollEntry extends HTMLButtonElement {
         evt.stopPropagation();
         const startpx = toPixels(...this.packet.start);
         const endpx = startpx + down.len + down.diff;
-        console.log(startpx, endpx);
         this.packet.stop = toQuarter(endpx, settings.divisions);
         down = false;
       }

@@ -190,6 +190,11 @@ class Keyboard {
       (key) => (this.keyMapping[key] += delta)
     );
   }
+
+  beep(note) {
+    this.start(note, 64);
+    setTimeout(() => this.stop(note), 200);
+  }
 }
 
 export { Keyboard, generator };

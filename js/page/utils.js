@@ -47,20 +47,40 @@ export function find(qs, parent = document) {
   return nodes;
 }
 
-function setListeners(element) {
-  return ([eventType, listener]) => {
-    element.addEventListener(eventType, listener);
-  };
+const handlers = {};
+
+export function listen(element, type, handler, opts = {}) {
+  handlers[type] ??= [];
+  const entry = { element, handler, opts };
+  handlers[type].push(entry);
+  element.addEventListener(type, handler, opts);
+  return entry;
 }
 
-/**
- *
- * @param {*} element
- * @param {*} handlers
- */
-export function listen(element, handlers = {}) {
-  Object.entries(handlers).forEach(setListeners(element));
+export function forget(element, type, handler = false) {
+  // forget(entry)?
+  if (element.element && element.handler && element.opts) {
+    return removeSpecific(element);
+  }
+
+  // full function signature
+  const elementListeners = handlers[type]?.filter(v => v.element === element);
+  if (elementListeners.length === 0) return;
+  if (handler) {
+    removeSpecific(elementListeners.find(v => v.handler === handler))
+  } else {
+    elementListeners.forEach(removeSpecific);
+  }
 }
+
+function removeSpecific(entry) {
+  if (!entry) return;
+  const { element, handler, opts } = entry;
+  const pos = handlers[type].findIndex(v => v === entry);
+  handlers[type].splice(pos, 1);
+  element.removeEventListener(type, handler, opts);
+}
+
 
 /**
  *

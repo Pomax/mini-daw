@@ -1,6 +1,6 @@
 import { settings } from "../../settings.js";
 import { find, create } from "../utils.js";
-import { Keyboard, getColor } from "../../midi/keyboard.js";
+import { Keyboard, getColor, generator } from "../../midi/keyboard.js";
 import { recorder } from "../../midi/recorder.js";
 import { generateRollBackground } from "./pianoroll-bg.js";
 import { midiNotePlay, midiNoteStop } from "../../midi/midi.js";
@@ -78,13 +78,16 @@ export function setup() {
     let m = (q / settings.timeSignature[0]) | 0;
     q -= m * settings.timeSignature[0];
     f %= 1;
-    const packet = recorder.recordEvent(note, 64, [m, q, f]);
-    const stop = [m, q + 1, f];
+    // note that we ignore the fraction, so that we always place
+    // a new note under the cursor, instead of next to it.
+    const packet = recorder.recordEvent(note, 64, [m, q, 0]);
+    const stop = [m, q + 1, 0];
     if (stop[1] === settings.timeSignature[0]) {
       stop[0]++;
       stop[1] = 0;
     }
     recorder.recordEventStop(packet, stop);
+    Keyboard.active.beep(note);
   });
 }
 
