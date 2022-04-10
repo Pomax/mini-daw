@@ -4,6 +4,7 @@ import { recorder } from "../midi/recorder.js";
 import { connectMIDI } from "../midi/midi.js";
 import { generator } from "../midi/keyboard.js";
 import { master, setReverb, setOverdrive } from "../audio/audio-context.js";
+import { beeper } from "../audio/audio-generator.js";
 import { slider } from "./slider.js";
 import { find } from "./utils.js";
 import * as pianoroll from "./pianoroll/pianoroll.js";
@@ -116,6 +117,8 @@ export function listenForUser(counter) {
     currentTickData = [0, 0];
     stopScrubber();
     find(`.scrubber`).style.setProperty(`--l`, `0px`);
+    const viewport = find(`.pianoroll-container`);
+    viewport.scroll(0, viewport.scrollTop);
     pauseButton.disabled = true;
     stopButton.disabled = true;
     playButton.disabled = false;
@@ -129,6 +132,15 @@ export function listenForUser(counter) {
     pauseButton.disabled = false;
     stopButton.disabled = false;
     recordButton.disabled = true;
+  });
+
+  find(`button.beep`).addEventListener(`click`, ({ target }) => {
+    target.classList.toggle(`disabled`);
+    if (target.classList.contains(`disabled`)) {
+      beeper.mute();
+    } else {
+      beeper.unmute();
+    }
   });
 
   document.addEventListener(`keypress`, (evt) => {
@@ -167,6 +179,17 @@ export function listenForUser(counter) {
     { onModWheel: (value) => (mod.value = value) },
     `modwheel`
   );
+
+  find(`button.load`).addEventListener(`click`, () => {
+    console.log(`Load .mid file`);
+    // const events = parseMidi(databuffer);
+    // recorder.loadEvents(events);
+  })
+
+  find(`button.save`).addEventListener(`click`, () => {
+    console.log(`Save current records as .mid file`);
+    console.log(recorder.getEventDataCopy());
+  })
 
   find(`button.chorus`).addEventListener(`click`, (evt) => {
     const btn = evt.target;

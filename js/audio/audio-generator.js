@@ -20,6 +20,14 @@ class AudioGenerator {
     this.setupLFO(lfoFrequency, lfoStrength);
   }
 
+  mute() {
+    this.output.disconnect(master);
+  }
+
+  unmute() {
+    this.output.connect(master);
+  }
+
   setupLFO(frequency, amplitude) {
     // set up the low frequency oscillator
     const LFO = context.createOscillator();

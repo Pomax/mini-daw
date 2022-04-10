@@ -1,12 +1,16 @@
 <pre>
+MIDI
+- [ ] save events to .mid file
+- [ ] load events from .mid file
+
+Events
+- [ ] we need a way to capture pitch and mod wheel events!
+
 Transport controls:
 - [ ] add a way to place the scrubber (top transport bar?)
 - [ ] make play "play from scrubber" instead of from 0:0:0
 - [x] relabel "stop" as "pause" since it leaves the scrubber where it is.
 - [x] create real "stop" button that halts play and sets scrubber to 0:0:0
-
-Events
-- [ ] we need a way to capture pitch and mod wheel events!
 
 Fix oscillator count:
 - [ ] legato vs. polyphonic toggle, using `setTargetAtTime`?
@@ -16,7 +20,7 @@ Make time signature user-manipulable
 - [x] add HTML controls
 - [ ] update piano roll to use settings
 - add listeners for html controls
-  - [ ] update timing wheel
+  - [ ] update timing wheel? (even though it's not used atm)
   - [ ] update piano roll
 
 Pianoroll nice to haves
@@ -25,14 +29,14 @@ Pianoroll nice to haves
 - [x] when click-placing notes, align to current quarter
 - [ ] add note groups
   - [ ] add "control-click-drag" for selecting a bunch of notes, grouping, and then performing group-based repositioning.
-  - [ ] always use note groups for repositioning, even when moving individual keys
-    - [ ] only play notes when moving groups-of-one
+  - [ ] always use note groups for repositioning, even when moving individual keys?
+    - [ ] if so, only play notes when moving groups-of-one
 
 Timing:
 - [ ] let users indicate which sub-quarter tick to listen to
-- [ ] checkbox for whether to play a metronome tick or not.
+- [x] icon for whether to play a metronome tick or not.
 
-DONE:
+--------
 
 - [x] update pianoroll measure/scrubber to be a background image with CSS sizing/repeat, and position notes absolutely.
 - [x] make pianoroll a CSS grid

@@ -51,7 +51,7 @@ class Recorder {
 
     //if (!this.playing) return;
 
-    const events = this.getEvents();
+    const events = this.getCurrentEventSet();
     events.forEach((packet) => {
       const { note, velocity, start, stop, record } = packet;
       const { active } = Keyboard;
@@ -70,7 +70,14 @@ class Recorder {
     });
   }
 
-  getEvents() {
+  getEventDataCopy() {
+    return this.data.map((v) => {
+      const { record, ...rest } = v;
+      return rest;
+    });
+  }
+
+  getCurrentEventSet() {
     const events = [];
     for (let i = this.head; i < this.data.length; i++) {
       const packet = this.data[i];

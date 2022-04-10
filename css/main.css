@@ -6,8 +6,9 @@ html {
 }
 
 body {
+  --page-width: 960px;
   display: block;
-  width: 960px;
+  width: var(--page-width);
   min-height: 100vh;
   margin: auto;
   background: white;
@@ -46,4 +47,15 @@ button.chorus.enabled {
 
 .flex {
   display: flex;
+}
+
+.controls div button.beep {
+  border: 1px solid grey;
+  border-radius: 4px;
+  outline: none;
+  background: gold;
+}
+
+.controls div button.beep.disabled {
+  filter: grayscale(1);
 }
