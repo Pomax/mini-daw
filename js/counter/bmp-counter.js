@@ -7,19 +7,22 @@ let startTime,
   lastTickData = [...Array(32)].map(() => -1);
 
 onmessage = async (e) => {
-  const { start, stop, bpm } = e.data;
+  const { start, position, stop, bpm } = e.data;
 
   if (bpm) {
     const { intervals } = setBPM(bpm);
+
     postMessage({ intervals });
   }
 
   if (start && !intervalTimer) {
-    markStart();
+    markStart(position);
     intervalTimer = setInterval(tryIncrement, 5);
   }
 
-  if (stop) intervalTimer = clearInterval(intervalTimer);
+  if (stop) {
+    intervalTimer = clearInterval(intervalTimer);
+  }
 };
 
 function setBPM(bpm = 125) {
@@ -28,9 +31,9 @@ function setBPM(bpm = 125) {
   return { intervals };
 }
 
-function markStart() {
-  startTime = performance.now();
-  tickData = [0, 0];
+function markStart(position) {
+  startTime = performance.now() - positionInMilliseconds(position);
+  tickData = position ?? [0, 0];
   prevTickData = [-1, -1];
 }
 
@@ -51,4 +54,11 @@ function tick(time) {
   const mi = runtime - m * intervals[0];
   tickData[1] = (mi / intervals[1]) | 0;
   return tickData;
+}
+
+function positionInMilliseconds(tickData) {
+  if (!tickData) return 0;
+  const mms = intervals[0];
+  const qms = intervals[1];
+  return tickData[0] * mms + tickData[1] * qms;
 }

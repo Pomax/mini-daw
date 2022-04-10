@@ -6,31 +6,11 @@ import { recorder } from "../midi/recorder.js";
 import { create, find } from "./utils.js";
 import * as pianoroll from "./pianoroll/pianoroll.js";
 
+let scrubTimer;
 const scrubber = document.querySelector(`.pianoroll-container .scrubber`);
 
-// We want to make this user-controllable, of course
-let timeSignature = settings.timeSignature;
-
-/**
- *
- * @param {*} n
- */
-export async function addMeasure(n = 1) {
-  while (n--) {
-    document.querySelectorAll(`.pianoroll tr`).forEach((row) => {
-      const measure = create(`td`);
-      measure.classList.add(`m`);
-      const inner = create(`div`);
-      inner.classList.add(`flex`);
-      measure.appendChild(inner);
-      for (let i = 0; i < timeSignature[0]; i++) {
-        const q = create(`span`);
-        q.classList.add(`q`);
-        inner.appendChild(q);
-      }
-      row.appendChild(measure);
-    });
-  }
+export function stopScrubber() {
+  clearTimeout(scrubTimer);
 }
 
 /**
@@ -132,7 +112,7 @@ export async function updateScrubber(tickData) {
       container.scroll(0, container.scrollTop);
     }
 
-    requestAnimationFrame(updateScrubber);
+    scrubTimer = setTimeout(updateScrubber, 10);
   })();
 }
 

@@ -18,12 +18,13 @@ function getMIDIMessage(midiMessage) {
 // general bootstrapping
 function onMidiSuccess(success) {
   let devices = [];
-  console.log(`INPUT DEVICES FOUND`);
   for (let input of success.inputs.values()) {
     console.log(input);
     devices.push(input);
     input.close();
   }
+  
+  console.log(`MIDI access allowed (${devices.length} devices found)`);
 
   const htmlNode = document.getElementById(`mididevice`);
   htmlNode.append(document.createElement(`option`));

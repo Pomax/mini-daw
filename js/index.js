@@ -1,6 +1,6 @@
 import { settings } from "./settings.js";
 import { buildCountingWheel } from "./page/counting-wheel.js";
-import { listenForUser } from "./page/event-handling.js";
+import { listenForUser, cacheTickData } from "./page/event-handling.js";
 import {
   bootstrapPianoRoll,
   listenForInitialPageInteraction,
@@ -38,6 +38,8 @@ counter.onmessage = async (e) => {
   }
 
   if (tickData) {
+    cacheTickData(tickData);
+    
     // we should be on a new quarter now, but we might also be on a new measure
     const m = tickData[0] !== prevTickData[0];
     const q = tickData[1] !== prevTickData[1];

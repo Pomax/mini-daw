@@ -2,8 +2,8 @@
 Transport controls:
 - [ ] add a way to place the scrubber (top transport bar?)
 - [ ] make play "play from scrubber" instead of from 0:0:0
-- [ ] relabel "stop" as "pause" since it leaves the scrubber where it is.
-- [ ] create real "stop" button that halts play and sets scrubber to 0:0:0
+- [x] relabel "stop" as "pause" since it leaves the scrubber where it is.
+- [x] create real "stop" button that halts play and sets scrubber to 0:0:0
 
 Fix oscillator count:
 - [ ] legato vs. polyphonic toggle, using `setTargetAtTime`?
@@ -25,12 +25,16 @@ Pianoroll nice to haves
   - [ ] always use note groups for repositioning, even when moving individual keys
     - [ ] only play notes when moving groups-of-one
 
+Timing:
+- [ ] let users indicate which sub-quarter tick to listen to
+- [ ] checkbox for whether to play a metronome tick or not.
+
 DONE:
 
 - [x] update pianoroll measure/scrubber to be a background image with CSS sizing/repeat, and position notes absolutely.
 - [x] make pianoroll a CSS grid
 - [x] don't preallocate all MIDI key oscillators
   - [x] create them on the fly, and reuse them with `osc.frequency.value.setValueAtTime`
-- [ ] decommission timing wheel (T_T) in favour of mmm:qq:ffff timing information
+- [x] decommission timing wheel (T_T) in favour of mmm:qq:ffff timing information
 
 </pre>

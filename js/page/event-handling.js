@@ -6,18 +6,26 @@ import { generator } from "../midi/keyboard.js";
 import { master, setReverb, setOverdrive } from "../audio/audio-context.js";
 import { slider } from "./slider.js";
 import { find } from "./utils.js";
+import * as pianoroll from "./pianoroll/pianoroll.js";
+import { stopScrubber } from "./page-ui.js";
 
 let startTime;
+let currentTickData;
+
+export function cacheTickData(tickData) {
+  currentTickData = tickData;
+}
 
 export function listenForUser(counter) {
   const playButton = find(`button.play`);
+  const pauseButton = find(`button.pause`);
   const stopButton = find(`button.stop`);
   const recordButton = find(`button.record`);
 
   find(`button.midi`).addEventListener(`click`, async (evt) => {
     evt.target.setAttribute(`disabled`, `disabled`);
     find(`button.record`).removeAttribute(`disabled`);
-    find(`button.stop`).removeAttribute(`disabled`);
+    find(`button.pause`).removeAttribute(`disabled`);
     const result = await connectMIDI();
     if (!result) {
       evt.target.removeAttribute(`disabled`);
@@ -72,7 +80,7 @@ export function listenForUser(counter) {
               );
           }
           if (controller === 115 && value === 127) playButton.click();
-          if (controller === 116 && value === 127) stopButton.click();
+          if (controller === 116 && value === 127) pauseButton.click();
           if (controller === 117 && value === 127) recordButton.click();
         },
       },
@@ -85,17 +93,30 @@ export function listenForUser(counter) {
     // const old = recorder.clear();
     recorder.start();
     counter.postMessage({ start: true });
+    pauseButton.disabled = false;
     stopButton.disabled = false;
     playButton.disabled = true;
     recordButton.disabled = true;
   });
 
-  stopButton.addEventListener(`click`, () => {
+  pauseButton.addEventListener(`click`, () => {
     const runtime = performance.now() - startTime;
     find(`span.runtime`).textContent = runtime.toFixed();
     counter.postMessage({ stop: true });
     recorder.stop(); // what do we want to do with the old data?
     generator.stopAll();
+    pauseButton.disabled = true;
+    stopButton.disabled = false;
+    playButton.disabled = false;
+    recordButton.disabled = false;
+  });
+
+  stopButton.addEventListener(`click`, () => {
+    pauseButton.click();
+    currentTickData = [0, 0];
+    stopScrubber();
+    find(`.scrubber`).style.setProperty(`--l`, `0px`);
+    pauseButton.disabled = true;
     stopButton.disabled = true;
     playButton.disabled = false;
     recordButton.disabled = false;
@@ -103,8 +124,9 @@ export function listenForUser(counter) {
 
   playButton.addEventListener(`click`, ({ target }) => {
     recorder.playback(settings.intervalValues);
-    counter.postMessage({ start: true });
+    counter.postMessage({ start: true, position: currentTickData });
     playButton.disabled = true;
+    pauseButton.disabled = false;
     stopButton.disabled = false;
     recordButton.disabled = true;
   });
@@ -112,7 +134,7 @@ export function listenForUser(counter) {
   document.addEventListener(`keypress`, (evt) => {
     if (evt.key === ` `) {
       if (playButton.disabled) {
-        stopButton.click();
+        pauseButton.click();
       } else playButton.click();
     }
   });
