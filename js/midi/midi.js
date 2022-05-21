@@ -66,18 +66,22 @@ function onMidiFail() {
 // kick it all of.
 async function connectMIDI() {
   if (!navigator.requestMIDIAccess) {
-    // Warn the user that they won't have MIDI functionality. Then load anyway
-    alert(
-      `WebMIDI is not supported (without plugins?) in this browser.\nYou can still play around, just... no MIDI functionality, obviously.`
-    );
-  } else {
+    navigator.requestMIDIAccess = JZZ.requestMIDIAccess
+  }
+  
+//  if (!navigator.requestMIDIAccess) {
+//    // Warn the user that they won't have MIDI functionality. Then load anyway
+//    alert(
+//      `WebMIDI is not supported (without plugins?) in this browser.\nYou can still play around, just... no MIDI functionality, obviously.`
+//    );
+//  } else {
     try {
       const result = await navigator.requestMIDIAccess();
       return onMidiSuccess(result);
     } catch (e) {
       onMidiFail();
     }
-  }
+//  }
 }
 
 // document level event for midi notes getting played
