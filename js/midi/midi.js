@@ -60,7 +60,7 @@ function onMidiSuccess(success) {
 function onMidiFail() {
   if (navigator.requestMIDIAccess === JZZ.requestMIDIAccess) {
     alert(
-      `While Web MIDI is available, MIDI device access failed. This site uses the Jazz Midi plugin for browsers without MIDI support, head on over to https://jazz-soft.net to install it for your browser.`
+      `While Web MIDI is available, MIDI device access failed. This site uses the Jazz MIDI plugin as fallback solution for browsers with bad/no native support, so head on over to https://jazz-soft.net to install it for your browser.`
     );
   } else {
     navigator.requestMIDIAccess = JZZ.requestMIDIAccess;
