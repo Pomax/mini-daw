@@ -58,9 +58,14 @@ function onMidiSuccess(success) {
 
 // even if midi device access fails, we still have a synth to play with
 function onMidiFail() {
-  alert(
-    `While Web MIDI is available, MIDI device access failed. Not all browsers have sensible MIDI support, so you may need to fiddle with your browser's MIDI settings, or even install an extension.`
-  );
+  if (navigator.requestMIDIAccess === JZZ.requestMIDIAccess) {
+    alert(
+      `While Web MIDI is available, MIDI device access failed. This site uses the Jazz Midi plugin for browsers without MIDI support, head on over to https://jazz-soft.net to install it for your browser.`
+    );
+  } else {
+    navigator.requestMIDIAccess = JZZ.requestMIDIAccess;
+    return connectMIDI();
+  }
 }
 
 // kick it all of.
@@ -68,20 +73,12 @@ async function connectMIDI() {
   if (!navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess = JZZ.requestMIDIAccess
   }
-  
-//  if (!navigator.requestMIDIAccess) {
-//    // Warn the user that they won't have MIDI functionality. Then load anyway
-//    alert(
-//      `WebMIDI is not supported (without plugins?) in this browser.\nYou can still play around, just... no MIDI functionality, obviously.`
-//    );
-//  } else {
-    try {
-      const result = await navigator.requestMIDIAccess();
-      return onMidiSuccess(result);
-    } catch (e) {
-      onMidiFail();
-    }
-//  }
+  try {
+    const result = await navigator.requestMIDIAccess();
+    return onMidiSuccess(result);
+  } catch (e) {
+    onMidiFail();
+  }
 }
 
 // document level event for midi notes getting played
